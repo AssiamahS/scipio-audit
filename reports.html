@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scipio — Application Report Cards</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px}
+.container{max-width:1000px;margin:0 auto;padding:24px 16px}
+h1{font-size:22px;margin-bottom:4px}h1 span{color:#38bdf8}
+.sub{color:#64748b;font-size:13px;margin-bottom:20px}
+.sub a{color:#38bdf8;text-decoration:none}
+.filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+select,input[type=text]{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:8px;padding:8px 12px;font-size:13px}
+input[type=text]{flex:1;min-width:180px}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.tile{background:#1e293b;border-radius:10px;padding:12px;text-align:center}
+.tile .n{font-size:22px;font-weight:700}.tile .l{font-size:11px;color:#94a3b8;text-transform:uppercase}
+.card{background:#16213b;border:1px solid #23324d;border-radius:12px;margin-bottom:12px;overflow:hidden}
+.card-head{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:10px;flex-wrap:wrap}
+.card-head:hover{background:#1a2745}
+.who{flex:1;min-width:200px}
+.company{font-weight:700;font-size:15px}
+.role{color:#94a3b8;font-size:13px}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
+.b-submitted{background:#1a3a2a;color:#4ade80}
+.b-submit_unconfirmed{background:#3b3520;color:#fbbf24}
+.b-dry_run{background:#334155;color:#94a3b8}
+.b-filled_not_submitted{background:#3b2f63;color:#a78bfa}
+.b-held_for_review{background:#1e3a5f;color:#38bdf8}
+.b-no_form,.b-error,.b-closed,.b-needs_account{background:#3b2020;color:#f87171}
+.b-rejected{background:#3b2020;color:#f87171}
+.date{color:#475569;font-size:12px}
+.body{display:none;padding:0 16px 16px;border-top:1px solid #23324d}
+.card.open .body{display:block}
+.sect{margin-top:14px}
+.sect h3{font-size:12px;text-transform:uppercase;color:#64748b;margin-bottom:8px;letter-spacing:.05em}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{padding:6px 8px;border-bottom:1px solid #1e293b;vertical-align:top}
+td.q{color:#94a3b8;width:45%}
+td.src{width:110px;text-align:right}
+.src span{font-size:10px;padding:2px 8px;border-radius:10px;background:#1e293b;color:#64748b}
+.src .s-ai{background:#3b2f63;color:#a78bfa}
+.src .s-answer-table,.src .s-bank{background:#1e3a5f;color:#38bdf8}
+.src .s-profile,.src .s-profile-detail{background:#1a3a2a;color:#4ade80}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:#1e293b;border-radius:6px;padding:3px 8px;font-size:11px;color:#94a3b8}
+.chip.miss{background:#3b2020;color:#f87171}
+.resume-pill{background:#1e3a5f;color:#38bdf8;border-radius:6px;padding:3px 10px;font-size:12px;display:inline-block}
+.jd{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:12px;max-height:280px;overflow-y:auto;white-space:pre-wrap;font-size:12px;color:#94a3b8;line-height:1.5}
+.link{color:#38bdf8;text-decoration:none;font-size:12px}
+.empty{color:#475569;text-align:center;padding:40px}
+details.jd-wrap summary{cursor:pointer;color:#38bdf8;font-size:12px;margin-bottom:8px}
+.warn{color:#64748b;font-size:11px;font-style:italic}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1><span>S</span>cipio — Report Cards</h1>
+  <div class="sub">Every application: resume sent, questions asked, how they were answered, and the job description. <a href="index.html">← back to tracker</a></div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="filters">
+    <select id="fStatus" onchange="render()">
+      <option value="">All Statuses</option>
+      <option value="submitted">Submitted</option>
+      <option value="submit_unconfirmed">Submit Unconfirmed</option>
+      <option value="held_for_review">Held for Review</option>
+      <option value="filled_not_submitted">Filled, Not Submitted</option>
+      <option value="dry_run">Dry Run</option>
+      <option value="no_form">No Form</option>
+      <option value="closed">Posting Closed</option>
+      <option value="needs_account">Needs Account (Workday)</option>
+      <option value="manual_review">Manual Review (1 click left)</option>
+    </select>
+    <input type="text" id="fSearch" placeholder="Search company, role, or question..." oninput="render()">
+  </div>
+
+  <div id="cards"></div>
+  <div class="empty" id="empty" style="display:none">No applications match.</div>
+</div>
+
+<script>
+let entries = [], jobsByUrl = {}, jobsBySlug = {}, rejectedCompanies = new Set();
+
+function esc(s){return (s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function slug(s){return (s||'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+
+async function load(){
+  const [logR, jobsR, rejR] = await Promise.all([
+    fetch('apply_log.json',{cache:'no-store'}),
+    fetch('jobs.json',{cache:'no-store'}),
+    fetch('rejections.json',{cache:'no-store'}).catch(()=>null),
+  ]);
+  entries = (await logR.json()).slice().reverse();
+  const db = await jobsR.json();
+  for(const j of db.jobs||[]){
+    if(j.url) jobsByUrl[j.url.split('?')[0]] = j;
+    jobsBySlug[slug(j.company)] = jobsBySlug[slug(j.company)] || j;
+    if(j.status==='rejected') rejectedCompanies.add(slug(j.company));
+  }
+  if(rejR && rejR.ok){
+    for(const r of await rejR.json()) if(r.company) rejectedCompanies.add(slug(r.company));
+  }
+  renderSummary();
+  render();
+}
+
+function jobFor(e){
+  return jobsByUrl[(e.url||'').split('?')[0]] || jobsBySlug[slug(e.company)] || null;
+}
+
+function renderSummary(){
+  const c = s => entries.filter(e=>e.status===s).length;
+  const qa = entries.reduce((n,e)=>n+((e.details&&e.details.qa)||[]).length,0);
+  const monday = new Date();
+  monday.setDate(monday.getDate() - ((monday.getDay()+6)%7));
+  monday.setHours(0,0,0,0);
+  const WEEK_GOAL = 5;
+  const week = entries.filter(e =>
+    ['submitted','submit_unconfirmed'].includes(e.status) &&
+    new Date(e.timestamp||0) >= monday).length;
+  const weekColor = week >= WEEK_GOAL ? '#4ade80' : '#fbbf24';
+  document.getElementById('summary').innerHTML = `
+    <div class="tile"><div class="n" style="color:${weekColor}">${week}/${WEEK_GOAL}</div><div class="l">Submits This Week</div></div>
+    <div class="tile"><div class="n">${entries.length}</div><div class="l">Runs Logged</div></div>
+    <div class="tile"><div class="n" style="color:#4ade80">${c('submitted')}</div><div class="l">Confirmed</div></div>
+    <div class="tile"><div class="n" style="color:#fbbf24">${c('submit_unconfirmed')}</div><div class="l">Unconfirmed</div></div>
+    <div class="tile"><div class="n" style="color:#f87171">${rejectedCompanies.size}</div><div class="l">Rejected Cos.</div></div>
+    <div class="tile"><div class="n" style="color:#38bdf8">${qa}</div><div class="l">Questions Answered</div></div>`;
+}
+
+function render(){
+  const fs = document.getElementById('fStatus').value;
+  const q = document.getElementById('fSearch').value.toLowerCase();
+  const el = document.getElementById('cards');
+  const shown = entries.filter(e=>{
+    if(fs && e.status!==fs) return false;
+    if(!q) return true;
+    const hay = [e.company,e.role,e.url,
+      ...((e.details&&e.details.qa)||[]).flatMap(x=>[x.label,x.answer])].join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+  document.getElementById('empty').style.display = shown.length?'none':'block';
+  el.innerHTML = shown.map((e,i)=>{
+    const d = e.details||{};
+    const job = jobFor(e);
+    const company = (e.company&&e.company!=='Unknown')?e.company:(job?job.company:hostOf(e.url));
+    const role = (e.role&&e.role!=='Unknown')?e.role:(job?job.role:'');
+    const rejected = rejectedCompanies.has(slug(company));
+    const qa = d.qa||[];
+    const jd = d.description || (job&&job.description) || '';
+    const resume = d.resume || null;
+    const score = d.match_score;
+    const scoreColor = score==null?'':(score>=7?'#4ade80':score>=4?'#fbbf24':'#f87171');
+    return `<div class="card" id="c${i}">
+      <div class="card-head" onclick="document.getElementById('c${i}').classList.toggle('open')">
+        <div class="who"><div class="company">${esc(company)}</div><div class="role">${esc(role)}</div></div>
+        <div class="meta">
+          ${score!=null?`<span class="badge" style="background:#1e293b;color:${scoreColor}" title="${esc(d.match_reason||'')}">match ${esc(score)}/10</span>`:''}
+          ${rejected?'<span class="badge b-rejected">rejected</span>':''}
+          ${e.confirmed_via?'<span class="badge b-held_for_review">email-confirmed</span>':''}
+          <span class="badge b-${esc(e.status)}">${esc(e.status.replace(/_/g,' '))}</span>
+          <span class="date">${esc((e.timestamp||'').slice(0,16).replace('T',' '))}</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="sect">
+          <h3>Resume Sent</h3>
+          ${resume?`<a class="resume-pill" style="text-decoration:none" href="resumes/${encodeURIComponent(resume)}" target="_blank" rel="noopener">${esc(resume)} ↗ open PDF</a>`
+            :`<a class="resume-pill" style="text-decoration:none;opacity:.75" href="resumes/${encodeURIComponent('Resume - Sylvester Assiamah (Project Manager).pdf')}" target="_blank" rel="noopener">Project Manager (default) ↗ open PDF</a> <span class="warn">exact copy not recorded for this run</span>`}
+        </div>
+        ${d.match_reason?`<div class="sect"><h3>Match ${esc(score)}/10 — why</h3><div style="color:#94a3b8;font-size:13px">${esc(d.match_reason)}${(d.matching_skills&&d.matching_skills.length)?' · matches: '+esc(d.matching_skills.join(', ')):''}</div></div>`:''}
+        ${qa.length?`<div class="sect"><h3>Questions &amp; Answers (${qa.length})</h3><table>${
+          qa.map(x=>`<tr><td class="q">${esc(x.label)}</td><td>${esc(x.answer)}</td><td class="src"><span class="s-${esc(x.source||'')}">${esc(x.source||'')}</span></td></tr>`).join('')
+        }</table></div>`:'<div class="sect"><h3>Questions &amp; Answers</h3><span class="warn">no Q/A audit for this run (audit added 2026-07-22)</span></div>'}
+        ${(d.fields_filled&&d.fields_filled.length)?`<div class="sect"><h3>Fields Filled (${d.fields_filled.length})</h3><div class="chips">${
+          d.fields_filled.map(f=>`<div class="chip">${esc(f)}</div>`).join('')}</div></div>`:''}
+        ${(d.fields_missed&&d.fields_missed.length)?`<div class="sect"><h3>Fields Missed</h3><div class="chips">${
+          d.fields_missed.map(f=>`<div class="chip miss">${esc(f)}</div>`).join('')}</div></div>`:''}
+        ${(d.unanswered_required&&d.unanswered_required.length)?`<div class="sect"><h3>Still Required at Submit</h3><div class="chips">${
+          d.unanswered_required.map(f=>`<div class="chip miss">${esc(f)}</div>`).join('')}</div></div>`:''}
+        ${jd?`<div class="sect"><details class="jd-wrap"><summary>Job Description</summary><div class="jd">${esc(jd)}</div></details></div>`:''}
+        <div class="sect"><a class="link" href="${esc(e.url)}" target="_blank" rel="noopener">View posting ↗</a></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function hostOf(u){try{return new URL(u).pathname.split('/')[1]||new URL(u).hostname}catch(e){return u||'?'}}
+load();
+</script>
+</body>
+</html>

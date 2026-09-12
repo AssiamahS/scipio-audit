@@ -1,0 +1,128 @@
+name: auto-apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: what to run
+        type: choice
+        default: batch
+        options:
+          - batch
+          - score
+          - apply
+      url:
+        description: job url (apply + score modes)
+        required: false
+      limit:
+        description: max jobs in batch mode
+        default: "3"
+      dry_run:
+        description: fill but don't submit
+        type: boolean
+        default: false
+  # schedule removed 2026-08-06 — actions minutes exhausted (private repo).
+  # daily runs live in .slyci/workflows/apply.yml on the cloudbox codespace,
+  # woken by the scipio-api worker cron. dispatch below is a manual fallback.
+
+permissions:
+  contents: write
+  models: read
+  actions: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    # human-pace delays (start jitter + minutes between apps) live inside
+    # the batch now, so the job needs headroom beyond the old 30
+    timeout-minutes: 55
+    defaults:
+      run:
+        working-directory: auto-apply
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: install deps + chromium
+        run: |
+          uv sync
+          uv run playwright install --with-deps chromium
+
+      - name: scout fresh postings
+        if: ${{ inputs.mode != 'score' }}
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: uv run python scout.py
+
+      - name: run applier
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # gmail app password for the profile inbox — lets the applier read
+          # greenhouse security codes and finish submits unattended
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          # inbox that actually receives the codes (profile addr forwards here)
+          GMAIL_IMAP_USER: ${{ secrets.GMAIL_IMAP_USER }}
+        run: |
+          MODE="${{ inputs.mode || 'batch' }}"
+          if [ "$MODE" = "score" ]; then
+            uv run python applier.py score "${{ inputs.url }}"
+          elif [ "$MODE" = "apply" ]; then
+            EXTRA=""
+            [ "${{ inputs.dry_run }}" = "true" ] && EXTRA="--dry-run"
+            uv run python applier.py apply "${{ inputs.url }}" $EXTRA
+          else
+            EXTRA=""
+            [ "${{ inputs.dry_run }}" = "true" ] && EXTRA="--dry-run"
+            uv run python applier.py batch $EXTRA --limit "${{ inputs.limit || '3' }}"
+          fi
+
+      - name: sweep rejection emails
+        if: always()
+        continue-on-error: true
+        env:
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GMAIL_IMAP_USER: ${{ secrets.GMAIL_IMAP_USER }}
+        run: uv run python rejections.py --days 14
+
+      - name: funnel stats + ghosts
+        if: always()
+        continue-on-error: true
+        run: uv run python funnel_stats.py
+
+      - name: follow-up drafts (never auto-sent)
+        if: always()
+        continue-on-error: true
+        env:
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GMAIL_IMAP_USER: ${{ secrets.GMAIL_IMAP_USER }}
+        run: uv run python followups.py
+
+      - name: commit apply log
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apply_log.json rejections.json confirmations.json needs_reply.json funnel_stats.json followups_state.json resumes_tailored ../jobs.json 2>/dev/null || git add apply_log.json rejections.json confirmations.json ../jobs.json
+          if ! git diff --cached --quiet; then
+            git commit -m "log: apply run ${{ github.run_number }}"
+            git pull --rebase origin main
+            git push origin main
+            # pushes from GITHUB_TOKEN don't trigger other workflows;
+            # workflow_dispatch is the documented exception
+            gh workflow run pages --ref main || echo 'pages dispatch 500d (github outage) — daily pages cron will catch up'
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apply-run-${{ github.run_number }}
+          path: |
+            auto-apply/screenshots/
+            auto-apply/apply_log.json
+          if-no-files-found: ignore
+          retention-days: 14

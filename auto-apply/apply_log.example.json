@@ -1,0 +1,262 @@
+[
+  {
+    "timestamp": "2026-09-12T15:30:05.584623",
+    "job_id": 246,
+    "company": "okta",
+    "role": "Solutions Engineering Associate, Okta",
+    "url": "https://www.okta.com/company/careers/opportunity/8191371?gh_jid=8191371",
+    "status": "manual_review",
+    "execution_class": "MANUAL",
+    "details": {
+      "url": "https://www.okta.com/company/careers/opportunity/8191371?gh_jid=8191371",
+      "status": "manual_review",
+      "ats": "greenhouse",
+      "fields_filled": [
+        "input[name*=\"first_name\"]",
+        "input[name*=\"last_name\"]",
+        "input[name*=\"email\"]",
+        "input[name*=\"phone\"]",
+        "linkedin",
+        "resume",
+        "Website",
+        "dropdown:Veteran Status",
+        "dropdown:Race",
+        "dropdown:Gender"
+      ],
+      "fields_missed": [],
+      "screenshot": "/home/codespace/.slyci/work/AssiamahS__scipio/auto-apply/screenshots/okta_20260912_152909.png",
+      "resume": "okta_246.pdf",
+      "resume_tailored": [
+        {
+          "role": "hmh",
+          "bullet": "hmh-firstcall",
+          "variant_used": "hmh-firstcall-support",
+          "score": 7
+        },
+        {
+          "role": "hmh",
+          "bullet": "hmh-meetings",
+          "variant_used": "hmh-meetings-2wk",
+          "score": 6
+        },
+        {
+          "role": "hmh",
+          "bullet": "hmh-devices-18",
+          "variant_used": "hmh-devices-18",
+          "score": 5
+        },
+        {
+          "role": "hmh",
+          "bullet": "hmh-scan-40",
+          "variant_used": "hmh-scan-40",
+          "score": 2
+        },
+        {
+          "role": "qaw",
+          "bullet": "qaw-pipeline",
+          "variant_used": "qaw-pipeline",
+          "score": 6
+        },
+        {
+          "role": "qaw",
+          "bullet": "qaw-backend",
+          "variant_used": "qaw-backend",
+          "score": 2
+        },
+        {
+          "role": "hb",
+          "bullet": "con-mlr-30",
+          "variant_used": "con-mlr-30",
+          "score": 2
+        },
+        {
+          "role": "hb",
+          "bullet": "con-8campaigns",
+          "variant_used": "con-8campaigns",
+          "score": 1
+        },
+        {
+          "role": "fcb",
+          "bullet": "con-14k",
+          "variant_used": "con-14k",
+          "score": 2
+        },
+        {
+          "role": "fcb",
+          "bullet": "con-4accounts",
+          "variant_used": "con-4accounts",
+          "score": 1
+        },
+        {
+          "role": "cat",
+          "bullet": "con-cosentyx",
+          "variant_used": "con-cosentyx",
+          "score": 6
+        },
+        {
+          "role": "cat",
+          "bullet": "con-sql",
+          "variant_used": "con-sql-automated",
+          "score": 7
+        },
+        {
+          "role": "alt",
+          "bullet": "alt-pipeline",
+          "variant_used": "alt-pipeline",
+          "score": 5
+        },
+        {
+          "role": "alt",
+          "bullet": "alt-19k",
+          "variant_used": "alt-19k-firstcall",
+          "score": 3
+        },
+        {
+          "role": "ss",
+          "bullet": "ss-feedback",
+          "variant_used": "ss-feedback",
+          "score": 5
+        },
+        {
+          "role": "ss",
+          "bullet": "ss-pricing",
+          "variant_used": "ss-pricing",
+          "score": 4
+        }
+      ],
+      "application_id": "c5e5d2710186",
+      "resume_sha256": "be75dabd678387d665d869c1affb5c67a36758cfc6654b66d28ee48124db0546",
+      "jd_sha256": "dd6ab8716972160b57f3aa8ce587137ff0e286cd0bce6c94aaf3fa40f1b8325a",
+      "tailored": true,
+      "jd_source": "json-ld",
+      "jd_company": "Okta, Inc.",
+      "jd_role": "Solutions Engineering Associate, Okta",
+      "match_score": 5,
+      "match_reason": "Could not score",
+      "matching_skills": [],
+      "ats_score": 62,
+      "ats_missing": [
+        "gcp",
+        "sla",
+        "single sign-on",
+        "saml",
+        "oauth",
+        "security",
+        "api",
+        "rest",
+        "engineering"
+      ],
+      "qa": [
+        {
+          "kind": "select",
+          "label": "Are you legally authorized to work in the country you reside?",
+          "answer": "Yes",
+          "source": "profile-detail"
+        },
+        {
+          "kind": "select",
+          "label": "Will you now or in the future require Visa Sponsorship?",
+          "answer": "No",
+          "source": "profile-detail"
+        },
+        {
+          "kind": "select",
+          "label": "To the best of your knowledge, do you have any family members / relatives or personal relationships at Okta or at any su",
+          "answer": "No",
+          "source": "profile-detail"
+        },
+        {
+          "kind": "select",
+          "label": "Veteran Status",
+          "answer": "I don't wish to answer",
+          "source": "answer-table"
+        },
+        {
+          "kind": "select",
+          "label": "Race",
+          "answer": "Decline To Self Identify",
+          "source": "answer-table"
+        },
+        {
+          "kind": "select",
+          "label": "Gender",
+          "answer": "Decline To Self Identify",
+          "source": "answer-table"
+        }
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-07-19T23:24:28.607117",
+    "job_id": 16,
+    "company": "komodohealth",
+    "role": "Senior Technical Program Manager, Data Platform",
+    "url": "https://job-boards.greenhouse.io/komodohealth/jobs/8547817002",
+    "status": "submitted",
+    "details": {
+      "url": "https://job-boards.greenhouse.io/komodohealth/jobs/8547817002",
+      "status": "submitted",
+      "ats": "greenhouse",
+      "fields_filled": [
+        "#first_name",
+        "#last_name",
+        "#email",
+        "#phone",
+        "Location (City)*",
+        "LinkedIn Profile"
+      ],
+      "fields_missed": [
+        "resume"
+      ],
+      "screenshot": "/home/runner/work/scipio/scipio/auto-apply/screenshots/komodohealth_20260719_232425.png",
+      "qa": []
+    }
+  },
+  {
+    "timestamp": "2026-09-01T12:15:33.223223",
+    "job_id": 116,
+    "company": "lts",
+    "role": "ServiceNow System Administrator",
+    "url": "https://job-boards.greenhouse.io/lts/jobs/4372985009",
+    "status": "blocked_knockout",
+    "execution_class": "UNKNOWN",
+    "details": {
+      "status": "blocked_knockout",
+      "reason": "requires Security clearance (not held): \"citizen or permanent resident required with the ability to obtain a public trust</p> <p>&n\"",
+      "fit": {
+        "verdict": "skip",
+        "score": 21,
+        "knockouts": [
+          "requires Security clearance (not held): \"citizen or permanent resident required with the ability to obtain a public trust</p> <p>&n\""
+        ],
+        "stretch": [
+          "title \"ServiceNow System Administrator\" matches no title he has held (Jobscan: 10.6x when it does)",
+          "keyword echo 19% (missing: change management, patching, sso, mfa, provisioning, access review)"
+        ],
+        "reasons": [],
+        "title_match": false,
+        "posting_age_days": null,
+        "years_required": null,
+        "keyword_score": 19,
+        "keywords_missing": [
+          "change management",
+          "patching",
+          "sso",
+          "mfa",
+          "provisioning",
+          "access review",
+          "security",
+          "audit",
+          "api",
+          "documentation"
+        ],
+        "keywords_present": [
+          "servicenow",
+          "infrastructure",
+          "system"
+        ]
+      },
+      "qa": []
+    }
+  }
+]

@@ -1,0 +1,914 @@
+{
+ "version": 2,
+ "rule": "Only approved:true text may ever appear on a resume, VERBATIM. The tailor engine selects and orders: it never writes. New wording gets added here as approved:false until Sylvester flips it.",
+ "variant_rule": "Variants are pre-approved interchangeable wordings of the SAME claim (added 2026-07-16 at Sylvester's request). The engine picks whichever approved variant literally matches the JD's words; ties go to the base text. A variant that changes the claim itself stays approved:false until Sylvester flips it. Uncheck any variant in bank.html to pull it from circulation.",
+ "identity": {
+  "name": "<name>",
+  "contact": "<email> | <phone> | <linkedin> | <github>"
+ },
+ "target_titles": [
+  "IT Project Manager",
+  "Technical Project Manager",
+  "Project Manager",
+  "Program Coordinator",
+  "Healthcare IT Analyst",
+  "IT Operations Engineer"
+ ],
+ "summaries": [
+  {
+   "id": "sum-pm",
+   "approved": true,
+   "titles": [
+    "IT Project Manager",
+    "Technical Project Manager",
+    "Project Manager",
+    "Program Coordinator",
+    "Program Manager"
+   ],
+   "tags": [
+    "Project Management",
+    "Stakeholder Management",
+    "Timelines",
+    "MLR Review",
+    "Pharmacy"
+   ],
+   "text": "Healthcare IT project coordinator and infrastructure engineer, 6 years across hospital IT, pharma marketing agencies, and pharmacy operations. Ran 8 pharma campaigns at once at Heartbeat (Publicis Health), coordinated 4 client accounts at FCB Global (IPG), and now run infrastructure projects and biweekly updates for doctors and department leads at Hackensack Meridian Health, NJ's largest health network.",
+   "note": "2026-09-07 honest positioning: titled PM/coordination time is 19 of 72 months; the old line claimed 6+ years as a PM"
+  },
+  {
+   "id": "sum-ops",
+   "approved": false,
+   "titles": [
+    "IT Operations Engineer",
+    "Infrastructure Engineer",
+    "Systems Engineer",
+    "IT Analyst",
+    "Support Engineer"
+   ],
+   "tags": [
+    "Help Desk",
+    "Medical Devices",
+    "Storage",
+    "ITSM",
+    "Clinical Workflows"
+   ],
+   "text": "Infrastructure operations engineer at Hackensack Meridian Health, NJ's largest health network: running infrastructure projects, biweekly project updates for doctors and department leads, and first technical call for 200+ clinical and administrative staff. Before that, 6+ years across healthcare and pharma at Heartbeat and FCB Global. BS in Pharmaceutical Business, MCPHS University."
+  },
+  {
+   "id": "sum-data",
+   "approved": false,
+   "titles": [
+    "Healthcare IT Analyst",
+    "Data Analyst",
+    "Business Analyst",
+    "Reporting Analyst"
+   ],
+   "tags": [
+    "SQL",
+    "Data Analysis",
+    "Forecasting",
+    "Reporting",
+    "Excel"
+   ],
+   "text": "Analyst with 6+ years in healthcare and pharma. Built SQL reporting so account teams could pull campaign performance themselves, owned forecasting for a Cosentyx (Novartis) engagement, and built a pricing model that lifted margins 10% at Stop & Shop Pharmacy HQ. Now at Hackensack Meridian Health, pulling operational data to catch system issues before they reach patient care. BS in Pharmaceutical Business, MCPHS University."
+  },
+  {
+   "id": "sum-infra",
+   "approved": true,
+   "titles": [
+    "Infrastructure Engineer",
+    "Systems Engineer",
+    "IT Operations Engineer",
+    "Systems Administrator",
+    "IAM Engineer",
+    "IAM Analyst",
+    "Identity Engineer",
+    "IT Analyst",
+    "Support Engineer"
+   ],
+   "tags": [
+    "Infrastructure",
+    "IT Operations",
+    "SailPoint",
+    "Okta",
+    "Epic",
+    "Troubleshooting"
+   ],
+   "text": "Healthcare infrastructure engineer, 6 years across hospital IT and pharma, running both the project plan and the hospital floor. At Hackensack Meridian Health, NJ's largest health network: a storage rebuild that cut surgical scan rendering 40%, a 15+ medical device rollout finished 18% ahead of the last one, and first technical call for 200+ clinical staff. SailPoint IdentityNow and Okta certified, Epic (Hyperspace) exposure.",
+   "source": "resumes-src/infrastructure-engineer.md (shipping since 2026-08-14)"
+  },
+  {
+   "id": "sum-coord",
+   "approved": true,
+   "titles": [
+    "Project Coordinator",
+    "Associate Project Manager",
+    "Business Analyst",
+    "Implementation Specialist",
+    "Implementation Analyst",
+    "Project Analyst",
+    "Program Coordinator",
+    "Healthcare Analyst",
+    "Operations Analyst"
+   ],
+   "tags": [
+    "Coordination",
+    "Analysis",
+    "SQL",
+    "Excel",
+    "Healthcare",
+    "Pharmacy"
+   ],
+   "text": "Healthcare project coordinator and analyst, 6 years across hospital IT, pharma marketing agencies, and pharmacy operations. Coordinated 4 client accounts at FCB Global and 8 campaigns at Heartbeat, built SQL and Excel reporting at Catalyst Solutions and Stop & Shop Pharmacy HQ, and now run infrastructure projects for 200+ clinical staff at Hackensack Meridian Health."
+  },
+  {
+   "id": "sum-finance",
+   "approved": true,
+   "titles": [
+    "Financial Analyst",
+    "Business Analyst",
+    "FP&A Analyst",
+    "Pricing Analyst",
+    "Budget Analyst",
+    "Procurement Analyst",
+    "Vendor Management Analyst",
+    "Operations Analyst",
+    "Revenue Operations Analyst",
+    "Cost Analyst"
+   ],
+   "tags": [
+    "Budget Management",
+    "Forecasting",
+    "Pricing",
+    "Vendor Management",
+    "SQL",
+    "Excel",
+    "Data Analysis",
+    "Compliance"
+   ],
+   "text": "Business and pricing analyst with a BS in Pharmaceutical Business and Technology and 6 years across pharmacy operations, pharma agencies, and hospital IT. Found $14,000 in yearly vendor savings at FCB Global (IPG), built a pricing model that lifted margins 10% and handled $300K+ in supplier orders under FDA rules at Stop & Shop Pharmacy HQ (Ahold Delhaize), and built SQL budget reporting at Catalyst Solutions. Now runs infrastructure projects and biweekly status updates for department leads at Hackensack Meridian Health.",
+   "note": "2026-09-12: finance base variant, requested by Sylvester (healthcare / finance / tech base set). Every figure is an approved bullet's figure."
+  }
+ ],
+ "roles": [
+  {
+   "id": "hmh",
+   "company": "Hackensack Meridian Health Network (Riverview Hospital)",
+   "location": "Red Bank, NJ",
+   "title": "Infrastructure Operations Engineer",
+   "dates": "June 2024 \u2013 Present",
+   "min": 4,
+   "max": 4
+  },
+  {
+   "id": "qaw",
+   "company": "QAW (independent iOS studio)",
+   "location": "<city>, NJ",
+   "title": "Mobile Application Developer",
+   "dates": "June 2023 \u2013 Present",
+   "min": 2,
+   "max": 2,
+   "note": "2026-09-07: on LinkedIn as Jun 2023 - Present; covers the Heartbeat-to-HMH gap; facts from his App Store Connect record"
+  },
+  {
+   "id": "hb",
+   "company": "Heartbeat (a Publicis Health agency)",
+   "location": "Manhattan, NY",
+   "title": "Producer (Project Management)",
+   "dates": "April 2022 \u2013 June 2023",
+   "min": 3,
+   "max": 3,
+   "note": "2026-09-07: LinkedIn + Heartbeat I-9 email signature (May 2022) both say Producer; employment verification returns Producer. Project-management function kept in parentheses."
+  },
+  {
+   "id": "fcb",
+   "company": "FCB Global (an IPG company)",
+   "location": "Manhattan, NY",
+   "title": "Senior Project Coordinator",
+   "dates": "January 2021 \u2013 April 2022",
+   "min": 3,
+   "max": 3,
+   "note": "2026-09-07: LinkedIn dates/title; W-2 for 2021 came via Opal Group (staffing)"
+  },
+  {
+   "id": "cat",
+   "company": "Catalyst Solutions",
+   "location": "Remote",
+   "title": "Associate, Data Analytics",
+   "dates": "October 2020 \u2013 January 2021",
+   "min": 2,
+   "max": 2,
+   "note": "2026-09-07: LinkedIn title is Associate; kept the analytics function"
+  },
+  {
+   "id": "alt",
+   "company": "Altice USA",
+   "location": "Manhattan, NY",
+   "title": "Business Development Representative",
+   "dates": "November 2019 \u2013 January 2020",
+   "min": 2,
+   "max": 2
+  },
+  {
+   "id": "ss",
+   "company": "Stop & Shop Pharmacy Headquarters (Ahold Delhaize)",
+   "location": "Boston, MA",
+   "title": "Pharmaceutical Business Analyst",
+   "dates": "April 2018 \u2013 October 2019",
+   "min": 2,
+   "max": 2,
+   "note": "7 years back: 2-3 bullets (RESUME_RULES 2); max 3 keeps one page"
+  }
+ ],
+ "max_total_bullets": 18,
+ "bullets": [
+  {
+   "id": "hmh-meetings",
+   "role": "hmh",
+   "approved": true,
+   "text": "Run 30-minute biweekly project update meetings for doctors and department leads: timelines, blockers, what's next",
+   "tags": [
+    "Project Management",
+    "Stakeholder Management",
+    "Communication",
+    "Timelines",
+    "Presentation",
+    "Clinical Workflows"
+   ],
+   "variants": [
+    {
+     "id": "hmh-meetings-lead",
+     "approved": true,
+     "text": "Lead biweekly project update meetings for doctors and department leads: timelines, blockers, what's next"
+    },
+    {
+     "id": "hmh-meetings-facilitate",
+     "approved": true,
+     "text": "Facilitate biweekly project status meetings for doctors and department leads: timelines, blockers, what's next"
+    },
+    {
+     "id": "hmh-meetings-2wk",
+     "approved": true,
+     "text": "Run project update meetings every 2 weeks for doctors and department leads: timelines, blockers, what's next",
+     "source": "same claim; 'every 2 weeks' wording shipped in resumes-src/project-manager.md since 2026-08-14"
+    },
+    {
+     "id": "hmh-meetings-status",
+     "approved": true,
+     "text": "Run 30-minute biweekly status meetings for doctors and department leads covering timelines, risks, blockers, and next deliverables"
+    },
+    {
+     "id": "hmh-meetings-jira",
+     "approved": true,
+     "text": "Run 30-minute biweekly project update meetings for doctors and department leads, with timelines, risks and blockers tracked in Jira and Confluence",
+     "note": "2026-09-07 tool named in the bullet (Kevin Manu rule); tools come from the skills list he already claims"
+    }
+   ],
+   "edit_note": "2026-09-05 metric added per Kevin Manu rule; number sourced from his own prior resume wording"
+  },
+  {
+   "id": "hmh-scan-40",
+   "role": "hmh",
+   "approved": true,
+   "text": "Worked with surgical teams to trace slow pre-op scan loading to a data transfer bottleneck; rebuilt the storage setup, cutting scan rendering times by 40%",
+   "tags": [
+    "Problem Solving",
+    "Storage",
+    "PACS",
+    "Clinical Workflows",
+    "Patient Care",
+    "Process Improvement"
+   ],
+   "variants": [
+    {
+     "id": "hmh-scan-40-partnered",
+     "approved": true,
+     "text": "Partnered with surgical teams to trace slow pre-op scan loading to a data transfer bottleneck; rebuilt the storage setup, cutting scan rendering times by 40%"
+    },
+    {
+     "id": "hmh-scan-40-troubleshot",
+     "approved": true,
+     "text": "Troubleshot slow pre-op scan loading with surgical teams down to a data transfer bottleneck; rebuilt the storage setup, cutting scan rendering times by 40%"
+    },
+    {
+     "id": "hmh-scan-40-vmware",
+     "approved": true,
+     "text": "Worked with surgical teams to trace slow pre-op scan loading to a data transfer bottleneck; rebuilt the VMware and Windows Server storage setup, cutting scan rendering times by 40%",
+     "note": "2026-09-07 tool named in the bullet (Kevin Manu rule); tools come from the skills list he already claims"
+    }
+   ]
+  },
+  {
+   "id": "hmh-devices-18",
+   "role": "hmh",
+   "approved": true,
+   "text": "Brought 15+ medical devices online across the hospital, working with nurses and clinicians to finish the rollout 18% faster than the previous one",
+   "tags": [
+    "Medical Devices",
+    "Clinical Workflows",
+    "Project Management",
+    "Cross-functional",
+    "Timelines",
+    "Training"
+   ],
+   "variants": [
+    {
+     "id": "hmh-devices-18-deployed",
+     "approved": true,
+     "text": "Deployed 15+ medical devices across the hospital, working with nurses and clinicians to finish the rollout 18% faster than the previous one"
+    },
+    {
+     "id": "hmh-devices-18-implemented",
+     "approved": true,
+     "text": "Implemented 15+ medical devices across the hospital, working with nurses and clinicians to finish the rollout 18% faster than the previous one"
+    }
+   ]
+  },
+  {
+   "id": "hmh-opsdata",
+   "role": "hmh",
+   "approved": false,
+   "text": "Pull operational data to catch system issues before they reach patient care; findings go to leadership as written reports",
+   "tags": [
+    "Data Analysis",
+    "Reporting",
+    "KPI Reporting",
+    "Patient Care",
+    "Documentation",
+    "Communication"
+   ],
+   "variants": [
+    {
+     "id": "hmh-opsdata-analyze",
+     "approved": true,
+     "text": "Analyze operational data to catch system issues before they reach patient care; findings go to leadership as written reports"
+    },
+    {
+     "id": "hmh-opsdata-monitor",
+     "approved": true,
+     "text": "Monitor operational data to catch system issues before they reach patient care; findings go to leadership as written reports"
+    },
+    {
+     "id": "hmh-opsdata-doc",
+     "approved": true,
+     "text": "Pull operational data to catch system issues before they reach patient care; documentation and findings go to leadership as written reports"
+    }
+   ],
+   "note": "2026-09-07 metric-less; the 40% scan bullet must always make the cut"
+  },
+  {
+   "id": "hmh-firstcall",
+   "role": "hmh",
+   "approved": true,
+   "text": "First technical call for 200+ clinical and administrative staff, coordinating fixes with vendors and departments",
+   "tags": [
+    "Help Desk",
+    "ITSM",
+    "Vendor Management",
+    "Customer Service",
+    "Problem Solving",
+    "Communication"
+   ],
+   "variants": [
+    {
+     "id": "hmh-firstcall-support",
+     "approved": true,
+     "text": "Primary technical support contact for 200+ clinical and administrative staff, coordinating fixes with vendors and departments"
+    },
+    {
+     "id": "hmh-firstcall-triage",
+     "approved": true,
+     "text": "Triage technical issues for 200+ clinical and administrative staff, coordinating fixes with vendors and departments"
+    },
+    {
+     "id": "hmh-firstcall-sla",
+     "approved": true,
+     "text": "First technical call for 200+ clinical and administrative staff, resolving tickets within SLA and coordinating fixes with vendors and departments"
+    },
+    {
+     "id": "hmh-firstcall-servicenow",
+     "approved": true,
+     "text": "First technical call for 200+ clinical and administrative staff, working the ServiceNow queue and coordinating fixes with vendors and departments",
+     "note": "2026-09-07 tool named in the bullet (Kevin Manu rule); tools come from the skills list he already claims"
+    }
+   ]
+  },
+  {
+   "id": "con-8campaigns",
+   "role": "hb",
+   "approved": true,
+   "text": "Ran 8 pharma marketing campaigns at once for biotech clients, keeping creative, MLR review, and production teams on schedule",
+   "tags": [
+    "Project Management",
+    "MLR Review",
+    "Timelines",
+    "Cross-functional",
+    "Time Management",
+    "Pharmacy"
+   ],
+   "variants": [
+    {
+     "id": "con-8campaigns-managed",
+     "approved": true,
+     "text": "Managed 8 pharma marketing campaigns at once for biotech clients, keeping creative, MLR review, and production teams on schedule"
+    },
+    {
+     "id": "con-8campaigns-led",
+     "approved": true,
+     "text": "Led 8 concurrent pharma marketing campaigns for biotech clients, keeping creative, MLR review, and production teams on schedule"
+    }
+   ]
+  },
+  {
+   "id": "con-mlr-30",
+   "role": "hb",
+   "approved": true,
+   "text": "Pushed 30+ creative assets a month through medical/legal/regulatory review, keeping the feedback loop tight between agency and client compliance",
+   "tags": [
+    "MLR Review",
+    "Compliance",
+    "FDA",
+    "Stakeholder Management",
+    "Pharmacy",
+    "Timelines"
+   ],
+   "variants": [
+    {
+     "id": "con-mlr-30-coordinated",
+     "approved": true,
+     "text": "Coordinated 30+ creative assets a month through medical/legal/regulatory (MLR) review, keeping the feedback loop tight between agency and client compliance"
+    },
+    {
+     "id": "con-mlr-30-managed",
+     "approved": true,
+     "text": "Managed the review of 30+ creative assets a month through medical/legal/regulatory (MLR) workflows, keeping the feedback loop tight between agency and client compliance"
+    }
+   ]
+  },
+  {
+   "id": "con-4accounts",
+   "role": "fcb",
+   "approved": true,
+   "text": "Managed campaigns across digital, print, and HCP channels for 4 client accounts at the same time, owning logistics and timelines end to end",
+   "tags": [
+    "Project Management",
+    "Timelines",
+    "Cross-functional",
+    "Customer Service",
+    "Resource Allocation"
+   ],
+   "variants": [
+    {
+     "id": "con-4accounts-coordinated",
+     "approved": true,
+     "text": "Coordinated campaigns across digital, print, and HCP channels for 4 client accounts at the same time, owning logistics and timelines end to end"
+    },
+    {
+     "id": "con-4accounts-oversaw",
+     "approved": true,
+     "text": "Oversaw campaigns across digital, print, and HCP channels for 4 client accounts at the same time, owning logistics and timelines end to end"
+    },
+    {
+     "id": "con-4accounts-tools",
+     "approved": true,
+     "text": "Managed campaigns across digital, print, and HCP channels for 4 client accounts at the same time, owning logistics and timelines end to end in the agency project tracker",
+     "note": "2026-09-07 tool named in the bullet (Kevin Manu rule); tools come from the skills list he already claims"
+    }
+   ]
+  },
+  {
+   "id": "con-sql",
+   "role": "cat",
+   "approved": true,
+   "text": "Built SQL reporting so account teams could pull campaign performance and budget status themselves instead of asking",
+   "tags": [
+    "SQL",
+    "Reporting",
+    "Data Analysis",
+    "Budget Management",
+    "Process Improvement",
+    "Automation"
+   ],
+   "variants": [
+    {
+     "id": "con-sql-developed",
+     "approved": true,
+     "text": "Developed SQL reporting so account teams could pull campaign performance and budget status themselves instead of asking"
+    },
+    {
+     "id": "con-sql-automated",
+     "approved": true,
+     "text": "Automated campaign performance and budget reporting with SQL so account teams could pull status themselves instead of asking"
+    }
+   ]
+  },
+  {
+   "id": "con-cosentyx",
+   "role": "cat",
+   "approved": true,
+   "text": "Owned forecasting for a Cosentyx (Novartis) engagement: pulled 12 months of seasonal data across departments and built the product placement model used in the next client proposal",
+   "tags": [
+    "Forecasting",
+    "Data Analysis",
+    "Pharmacy",
+    "Excel",
+    "Presentation"
+   ],
+   "variants": [
+    {
+     "id": "con-cosentyx-led",
+     "approved": true,
+     "text": "Led forecasting for a Cosentyx (Novartis) engagement: pulled seasonal data across departments and built the product placement model used in the next client proposal"
+    },
+    {
+     "id": "con-cosentyx-analyzed",
+     "approved": true,
+     "text": "Managed forecasting for a Cosentyx (Novartis) engagement: analyzed seasonal data across departments and built the product placement model used in the next client proposal"
+    }
+   ],
+   "edit_note": "2026-09-05 metric added per Kevin Manu rule; number sourced from his own prior resume wording"
+  },
+  {
+   "id": "con-14k",
+   "role": "fcb",
+   "approved": true,
+   "text": "Found $14,000 in yearly savings by digging into vendor costs and shifting production timelines around slower seasons",
+   "tags": [
+    "Budget Management",
+    "Vendor Management",
+    "Process Improvement",
+    "Forecasting"
+   ],
+   "variants": [
+    {
+     "id": "con-14k-identified",
+     "approved": true,
+     "text": "Identified $14,000 in annual savings by analyzing vendor costs and shifting production timelines around slower seasons"
+    },
+    {
+     "id": "con-14k-reduced",
+     "approved": false,
+     "text": "Reduced vendor spend by $14,000 a year by shifting production timelines around slower seasons"
+    }
+   ]
+  },
+  {
+   "id": "alt-pipeline",
+   "role": "alt",
+   "approved": true,
+   "text": "Prospected and qualified B2B leads for Optimum Business with a pipeline of 60+ accounts",
+   "tags": [
+    "Communication",
+    "Customer Service",
+    "Time Management"
+   ],
+   "variants": [
+    {
+     "id": "alt-pipeline-generated",
+     "approved": true,
+     "text": "Generated and qualified B2B leads for Optimum Business, managing a pipeline of 60+ accounts"
+    },
+    {
+     "id": "alt-pipeline-daily",
+     "approved": true,
+     "text": "Built and qualified a B2B pipeline of 60+ accounts through daily cold outreach, keeping every account's next step current"
+    }
+   ]
+  },
+  {
+   "id": "alt-19k",
+   "role": "alt",
+   "approved": true,
+   "text": "Closed $19,000 in recurring contract revenue, cold outreach to signed deal",
+   "tags": [
+    "Communication",
+    "Customer Service"
+   ],
+   "variants": [
+    {
+     "id": "alt-19k-secured",
+     "approved": true,
+     "text": "Secured $19,000 in recurring contract revenue, cold outreach to signed deal"
+    },
+    {
+     "id": "alt-19k-firstcall",
+     "approved": true,
+     "text": "Closed $19,000 in recurring contract revenue, carrying deals from first cold call to signed agreement"
+    }
+   ]
+  },
+  {
+   "id": "ss-300k",
+   "role": "ss",
+   "approved": true,
+   "text": "Handled $300K+ in production orders across international pharmacy suppliers under FDA and state board requirements",
+   "tags": [
+    "FDA",
+    "Compliance",
+    "Pharmacy",
+    "Vendor Management",
+    "Budget Management"
+   ],
+   "variants": [
+    {
+     "id": "ss-300k-managed",
+     "approved": true,
+     "text": "Managed $300K+ in production orders across international pharmacy suppliers under FDA and state board requirements"
+    },
+    {
+     "id": "ss-300k-processed",
+     "approved": true,
+     "text": "Processed $300K+ in production orders across international pharmacy suppliers, maintaining FDA and state board compliance"
+    }
+   ]
+  },
+  {
+   "id": "ss-enrollment",
+   "role": "ss",
+   "approved": true,
+   "text": "Rebuilt the customer enrollment workflow: $3,000 a year cheaper to run, and program sign-ups went up 5%",
+   "tags": [
+    "Process Improvement",
+    "Change Management",
+    "Budget Management",
+    "Customer Service"
+   ],
+   "variants": [
+    {
+     "id": "ss-enrollment-redesigned",
+     "approved": true,
+     "text": "Redesigned the customer enrollment workflow: $3,000 a year cheaper to run, and program sign-ups went up 5%"
+    },
+    {
+     "id": "ss-enrollment-streamlined",
+     "approved": true,
+     "text": "Streamlined the customer enrollment process, cutting $3,000 a year in running costs and lifting program sign-ups 5%"
+    }
+   ]
+  },
+  {
+   "id": "ss-pricing",
+   "role": "ss",
+   "approved": true,
+   "text": "Built a pricing model from prescription volume, reimbursement, and vendor pricing data that lifted margins 10%",
+   "tags": [
+    "Data Analysis",
+    "Forecasting",
+    "Excel",
+    "Pharmacy"
+   ],
+   "variants": [
+    {
+     "id": "ss-pricing-developed",
+     "approved": true,
+     "text": "Developed a pricing model from prescription volume, reimbursement, and vendor pricing data that lifted margins 10%"
+    },
+    {
+     "id": "ss-pricing-created",
+     "approved": true,
+     "text": "Created a pricing model from prescription volume, reimbursement, and vendor pricing data that improved margins 10%"
+    },
+    {
+     "id": "ss-pricing-excel",
+     "approved": true,
+     "text": "Built an Excel pricing model from prescription volume, reimbursement, and vendor pricing data that lifted margins 10%",
+     "note": "2026-09-07 tool named in the bullet (Kevin Manu rule); tools come from the skills list he already claims"
+    }
+   ]
+  },
+  {
+   "id": "ss-feedback",
+   "role": "ss",
+   "approved": true,
+   "text": "Tracked user feedback after program changes shipped; issue reports reached leadership within 48 hours",
+   "tags": [
+    "KPI Reporting",
+    "Documentation",
+    "Communication",
+    "Customer Service",
+    "Process Improvement"
+   ],
+   "variants": [
+    {
+     "id": "ss-feedback-monitored",
+     "approved": true,
+     "text": "Monitored user feedback after program changes shipped; issue reports reached leadership within 48 hours"
+    },
+    {
+     "id": "ss-feedback-analyzed",
+     "approved": true,
+     "text": "Collected and analyzed user feedback after program changes shipped; issue reports reached leadership within 48 hours"
+    }
+   ]
+  },
+  {
+   "id": "alt-territory",
+   "role": "alt",
+   "approved": false,
+   "text": "Sold Optimum Business connectivity to Manhattan small businesses, owning territory prospecting, outreach cadences, and proposal follow-through end to end",
+   "tags": [
+    "Sales",
+    "Communication",
+    "Ownership"
+   ],
+   "variants": []
+  },
+  {
+   "id": "hmh-stack",
+   "role": "hmh",
+   "approved": false,
+   "text": "Handle day-to-day troubleshooting across Windows Server, VMware, Citrix, and network infrastructure for 200+ staff, logging and closing tickets in ServiceNow",
+   "tags": [
+    "Infrastructure",
+    "Troubleshooting",
+    "Windows Server",
+    "VMware",
+    "Citrix",
+    "ServiceNow",
+    "Technical Support"
+   ],
+   "source": "user docx 2026-04 'Resume - Sylvester Assiamah (Revised)' + ServiceNow from infra variant",
+   "variants": []
+  },
+  {
+   "id": "con-mlr-loop",
+   "role": "hb",
+   "approved": true,
+   "text": "Owned the MLR comment loop between agency creative and client compliance so 30+ monthly revisions cleared review without moving launch dates",
+   "tags": [
+    "MLR Review",
+    "Compliance",
+    "Stakeholder Management",
+    "Timelines",
+    "Pharma"
+   ],
+   "source": "split of approved con-mlr-30 ('keeping the feedback loop tight between agency and client compliance') + sum-pm ('without missing a client deadline')",
+   "variants": [],
+   "edit_note": "2026-09-05 metric added per Kevin Manu rule; number sourced from his own prior resume wording"
+  },
+  {
+   "id": "con-logistics",
+   "role": "fcb",
+   "approved": true,
+   "text": "Ran production logistics and vendor timelines end to end for all 4 accounts, from creative handoff to print and digital delivery",
+   "tags": [
+    "Project Coordination",
+    "Vendor Management",
+    "Timelines",
+    "Logistics",
+    "Production"
+   ],
+   "source": "split of approved con-4accounts ('owning logistics and timelines end to end')",
+   "variants": [],
+   "edit_note": "2026-09-05 metric added per Kevin Manu rule; number sourced from his own prior resume wording"
+  },
+  {
+   "id": "con-dataset",
+   "role": "cat",
+   "approved": true,
+   "text": "Consolidated 12 months of seasonal sales and department data into one forecasting dataset that fed the Cosentyx product placement model",
+   "tags": [
+    "Data Analysis",
+    "Forecasting",
+    "SQL",
+    "Reporting"
+   ],
+   "source": "split of approved con-cosentyx ('pulled seasonal data across departments and built the product placement model')",
+   "variants": [],
+   "edit_note": "2026-09-05 metric added per Kevin Manu rule; number sourced from his own prior resume wording"
+  },
+  {
+   "id": "qaw-apps",
+   "role": "qaw",
+   "approved": true,
+   "text": "Built and shipped 10+ iPhone and Apple Watch apps to TestFlight as a solo developer in Swift and SwiftUI, with cloud-signed CI builds on GitHub Actions",
+   "tags": [
+    "iOS",
+    "Swift",
+    "CI/CD",
+    "GitHub Actions",
+    "Mobile"
+   ],
+   "variants": []
+  },
+  {
+   "id": "qaw-pipeline",
+   "role": "qaw",
+   "approved": true,
+   "text": "Built a Playwright automation pipeline in Python that fills and submits web forms across 4 applicant-tracking systems, with email verification, retries and a 100-point quality scorecard",
+   "tags": [
+    "Python",
+    "Automation",
+    "Playwright",
+    "QA",
+    "Process Improvement"
+   ],
+   "variants": []
+  },
+  {
+   "id": "qaw-backend",
+   "role": "qaw",
+   "approved": true,
+   "text": "Ran the apps' backends on Cloudflare Workers and a Linux server with launchd and cron jobs, keeping 6 services online for daily use",
+   "tags": [
+    "Cloudflare",
+    "Linux",
+    "Operations",
+    "Reliability"
+   ],
+   "variants": []
+  }
+ ],
+ "skills": [
+  {
+   "category": "Project & Delivery",
+   "items": [
+    "Project management",
+    "program coordination",
+    "implementation",
+    "stakeholder communications",
+    "cross-functional coordination",
+    "vendor management",
+    "MLR review",
+    "process improvement",
+    "Jira",
+    "Confluence",
+    "ServiceNow"
+   ]
+  },
+  {
+   "category": "Infrastructure & Systems",
+   "items": [
+    "Windows Server",
+    "Active Directory",
+    "Azure AD",
+    "VMware",
+    "Citrix",
+    "SCCM/MECM",
+    "Linux",
+    "TCP/IP",
+    "DNS",
+    "DHCP",
+    "VPN",
+    "AWS",
+    "Azure"
+   ]
+  },
+  {
+   "category": "Identity & Access",
+   "items": [
+    "SailPoint IdentityNow",
+    "Okta",
+    "IAM",
+    "SSO",
+    "MFA",
+    "provisioning"
+   ]
+  },
+  {
+   "category": "Healthcare",
+   "items": [
+    "Epic (Hyperspace)",
+    "EHR/EMR systems",
+    "HIPAA/PHI compliance",
+    "medical device rollouts",
+    "pharma marketing operations"
+   ]
+  },
+  {
+   "category": "Data & Scripting",
+   "items": [
+    "SQL (MySQL, PostgreSQL)",
+    "Excel forecasting and pricing models",
+    "reporting dashboards",
+    "Python",
+    "PowerShell",
+    "JavaScript",
+    "Playwright",
+    "GitHub Actions"
+   ]
+  }
+ ],
+ "education": [
+  {
+   "school": "Rutgers University",
+   "location": "New Brunswick, NJ",
+   "credential": "Certificate, Full Stack Web Development (4.0 GPA)",
+   "date": "March 2024 \u2013 June 2024",
+   "note": "2026-09-07: first day of class 3/11/2024 per Rutgers Coding Bootcamp orientation email; full-time 12-week program"
+  },
+  {
+   "school": "MCPHS University School of Pharmaceutical Business and Technology",
+   "location": "Boston, MA",
+   "credential": "Bachelor of Science in Pharmaceutical Business and Technology",
+   "date": "May 2018",
+   "note": "2026-09-09: degree name confirmed by Sylvester \u2014 \"Pharmaceutical Business and Technology\""
+  }
+ ],
+ "certifications": [
+  "SailPoint IdentityNow Advanced Training Certificate",
+  "Okta Identity and Access Management"
+ ],
+ "rules": "RESUME_RULES.md at repo root is enforced by resume_rules.py on every artifact before it may be sent.",
+ "dates_note": "2026-09-05: per-employer dates and titles taken from Sylvester's own resume (Downloads/Resume - Sylvester Assiamah.docx): Heartbeat PM Feb 2022-Jan 2023, FCB Global Coordinator May 2021-Jan 2022, Catalyst Data Analyst Oct 2020-Apr 2021. The merged 'Contract Project Management' block is gone for good."
+}

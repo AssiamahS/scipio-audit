@@ -1,0 +1,44 @@
+name: send-email
+
+on:
+  workflow_dispatch:
+    inputs:
+      to:
+        description: Recipient address
+        required: true
+      subject:
+        description: Subject line
+        required: true
+      body:
+        description: Plain-text body
+        required: true
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: send via gmail smtp
+        env:
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          GMAIL_IMAP_USER: ${{ secrets.GMAIL_IMAP_USER }}
+          TO: ${{ inputs.to }}
+          SUBJECT: ${{ inputs.subject }}
+          BODY: ${{ inputs.body }}
+        run: |
+          python3 - <<'EOF'
+          import os, smtplib
+          from email.message import EmailMessage
+          from email.utils import formataddr
+
+          user = os.environ.get('GMAIL_IMAP_USER') or '<email>'
+          msg = EmailMessage()
+          msg['From'] = formataddr(('Sylvester Assiamah', user))
+          msg['To'] = os.environ['TO']
+          msg['Subject'] = os.environ['SUBJECT']
+          msg.set_content(os.environ['BODY'])
+
+          with smtplib.SMTP_SSL('smtp.gmail.com', 465) as s:
+              s.login(user, os.environ['GMAIL_APP_PASSWORD'])
+              s.send_message(msg)
+          print(f"sent to {os.environ['TO']} as {user}")
+          EOF

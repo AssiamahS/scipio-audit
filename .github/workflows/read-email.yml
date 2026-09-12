@@ -1,0 +1,72 @@
+name: read-email
+
+on:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: 'Gmail search query (X-GM-RAW syntax, e.g. from:verizon)'
+        required: true
+      mailbox:
+        description: 'Mailbox to search'
+        default: '[Gmail]/All Mail'
+      limit:
+        description: 'Max messages to print'
+        default: '5'
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    steps:
+      - name: search imap
+        env:
+          IMAP_USER: ${{ secrets.GMAIL_IMAP_USER }}
+          IMAP_PASS: ${{ secrets.GMAIL_APP_PASSWORD }}
+          QUERY: ${{ inputs.query }}
+          MAILBOX: ${{ inputs.mailbox }}
+          LIMIT: ${{ inputs.limit }}
+        run: |
+          python3 - <<'EOF'
+          import imaplib, email, os, html, re
+          from email.header import decode_header, make_header
+
+          user = os.environ.get('IMAP_USER') or '<email>'
+          pw = os.environ['IMAP_PASS']
+          q, box, limit = os.environ['QUERY'], os.environ['MAILBOX'], int(os.environ['LIMIT'])
+
+          m = imaplib.IMAP4_SSL('imap.gmail.com')
+          m.login(user, pw)
+          typ, _ = m.select(f'"{box}"', readonly=True)
+          if typ != 'OK':
+              raise SystemExit(f'cannot open mailbox {box}')
+
+          typ, data = m.search(None, 'X-GM-RAW', f'"{q}"')
+          ids = data[0].split()
+          print(f'{len(ids)} matches in {box} for {q!r}')
+
+          for i in ids[-limit:][::-1]:
+              typ, msgdata = m.fetch(i, '(RFC822)')
+              msg = email.message_from_bytes(msgdata[0][1])
+              print('=' * 70)
+              print('Date:', msg['Date'])
+              print('From:', msg['From'])
+              print('Subject:', str(make_header(decode_header(msg['Subject'] or ''))))
+              body = ''
+              if msg.is_multipart():
+                  for part in msg.walk():
+                      if part.get_content_type() == 'text/plain':
+                          body = part.get_payload(decode=True).decode(part.get_content_charset() or 'utf-8', 'replace')
+                          break
+                  if not body:
+                      for part in msg.walk():
+                          if part.get_content_type() == 'text/html':
+                              h = part.get_payload(decode=True).decode(part.get_content_charset() or 'utf-8', 'replace')
+                              body = re.sub(r'<(script|style)[^>]*>.*?</\1>', ' ', h, flags=re.S | re.I)
+                              body = re.sub(r'<[^>]+>', ' ', body)
+                              break
+              else:
+                  body = msg.get_payload(decode=True).decode(msg.get_content_charset() or 'utf-8', 'replace')
+              body = html.unescape(re.sub(r'\s+', ' ', body)).strip()
+              print('Body:', body[:3000])
+
+          m.logout()
+          EOF

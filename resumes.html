@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scipio — Resumes & 100-Point Scorecard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px}
+.container{max-width:1000px;margin:0 auto;padding:24px 16px}
+h1{font-size:22px;margin-bottom:4px}h1 span{color:#38bdf8}
+.sub{color:#64748b;font-size:13px;margin-bottom:20px}
+.sub a{color:#38bdf8;text-decoration:none}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.tile{background:#1e293b;border-radius:10px;padding:12px;text-align:center}
+.tile .n{font-size:22px;font-weight:700}.tile .l{font-size:11px;color:#94a3b8;text-transform:uppercase}
+.n.good{color:#4ade80}.n.mid{color:#fbbf24}.n.bad{color:#f87171}
+.card{background:#16213b;border:1px solid #23324d;border-radius:12px;margin-bottom:12px;overflow:hidden}
+.card-head{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:10px;flex-wrap:wrap}
+.card-head:hover{background:#1a2745}
+.who{flex:1;min-width:200px}
+.company{font-weight:700;font-size:15px}
+.role{color:#94a3b8;font-size:13px}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
+.b-submitted{background:#1a3a2a;color:#4ade80}
+.b-submit_unconfirmed{background:#3b3520;color:#fbbf24}
+.b-manual_review{background:#3b2f63;color:#a78bfa}
+.b-dry_run{background:#334155;color:#94a3b8}
+.b-filled_not_submitted{background:#3b2f63;color:#a78bfa}
+.b-no_form,.b-error{background:#3b2020;color:#f87171}
+.body{display:none;padding:0 16px 16px;border-top:1px solid #23324d}
+.card.open .body{display:block}
+.sect{margin-top:14px}
+.sect h3{font-size:12px;text-transform:uppercase;color:#64748b;margin-bottom:8px;letter-spacing:.05em}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:6px 8px;border-bottom:1px solid #1e293b;vertical-align:top;text-align:left}
+th{font-size:11px;color:#64748b;text-transform:uppercase}
+.gauge{width:120px;height:8px;background:#1e293b;border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle}
+.gauge i{display:block;height:100%;border-radius:4px}
+.score{font-weight:700;font-size:15px;min-width:52px;display:inline-block}
+.workon{margin-top:6px}
+.workon li{margin:5px 0 5px 18px;font-size:13px;color:#e2e8f0}
+.workon .note{color:#94a3b8;font-size:12px}
+.workon .cid{color:#475569;font-size:11px;margin-right:6px}
+.resume-pill{background:#1e3a5f;color:#38bdf8;border-radius:6px;padding:3px 10px;font-size:12px;display:inline-block;text-decoration:none}
+.link{color:#38bdf8;text-decoration:none}
+.empty{color:#475569;text-align:center;padding:40px}
+.grp{color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin:12px 0 4px}
+.date{color:#475569;font-size:12px}
+.pass-row{color:#4ade80}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Scipio <span>Resumes</span> — 100-Point Scorecard</h1>
+<div class="sub">Every variant, its score, what to work on, and exactly which resume went to which JD.
+<a href="reports.html">report cards</a> · <a href="index.html">board</a> · <span id="gen"></span></div>
+
+<div class="summary" id="tiles"></div>
+
+<div id="variants"></div>
+
+<div class="card open"><div class="card-head" onclick="this.parentNode.classList.toggle('open')">
+<div class="who"><div class="company">Pipeline: what to work on</div>
+<div class="role">every failed check across tailoring, delivery, and tracking — 1 point each</div></div>
+<div class="meta"><span class="score" id="pipeScore"></span></div></div>
+<div class="body"><div id="pipeWork"></div></div></div>
+
+<div class="card"><div class="card-head" onclick="this.parentNode.classList.toggle('open')">
+<div class="who"><div class="company">Sent history — which resume went with which JD</div>
+<div class="role">every attempt, newest first (unconfirmed and parked included, so nothing hides)</div></div>
+<div class="meta"><span class="date" id="sentCount"></span></div></div>
+<div class="body"><div style="overflow-x:auto"><table id="sent"></table></div></div></div>
+
+</div>
+<script>
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cls = (n, of) => n / of >= 0.9 ? 'good' : n / of >= 0.7 ? 'mid' : 'bad';
+const barColor = (n, of) => n / of >= 0.9 ? '#4ade80' : n / of >= 0.7 ? '#fbbf24' : '#f87171';
+
+Promise.all([
+  fetch('resume_scores.json',{cache:'no-store'}).then(r=>r.json()),
+  fetch('funnel_stats.json',{cache:'no-store'}).then(r=>r.json()).catch(()=>({variants:[]})),
+  fetch('apply_log.json',{cache:'no-store'}).then(r=>r.json()).catch(()=>[]),
+]).then(([scores, funnel, log]) => {
+  document.getElementById('gen').textContent = 'scored ' + scores.generated;
+
+  const t = document.getElementById('tiles');
+  const g = scores.groups || {};
+  t.innerHTML = `
+    <div class="tile"><div class="n ${cls(scores.score, scores.of)}">${scores.score}/${scores.of}</div><div class="l">overall</div></div>
+    <div class="tile"><div class="n ${cls(g.A?.score??0, g.A?.of??35)}">${g.A?.score??'–'}/${g.A?.of??35}</div><div class="l">resume</div></div>
+    <div class="tile"><div class="n ${cls(g.B?.score??0, g.B?.of??25)}">${g.B?.score??'–'}/${g.B?.of??25}</div><div class="l">tailoring</div></div>
+    <div class="tile"><div class="n ${cls(g.C?.score??0, g.C?.of??25)}">${g.C?.score??'–'}/${g.C?.of??25}</div><div class="l">delivery</div></div>
+    <div class="tile"><div class="n ${cls(g.D?.score??0, g.D?.of??15)}">${g.D?.score??'–'}/${g.D?.of??15}</div><div class="l">tracking</div></div>`;
+
+  // per-variant cards
+  const fv = Object.fromEntries((funnel.variants||[]).map(v => [v.resume, v]));
+  const sends = {};
+  for (const e of log) {
+    const r = e.details && e.details.resume;
+    if (r) (sends[r] = sends[r] || []).push(e);
+  }
+  const vbox = document.getElementById('variants');
+  for (const [name, v] of Object.entries(scores.variants || {})) {
+    const short = (name.match(/\((.+)\)/) || [,name])[1];
+    const f = fv[name] || {};
+    const mySends = (sends[name] || []).length;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<div class="card-head" onclick="this.parentNode.classList.toggle('open')">
+      <div class="who"><div class="company">${esc(short)}</div>
+      <div class="role">${mySends} sends logged · ${f.rejected??0} rejections · ${f.interviews??0} interviews</div></div>
+      <div class="meta">
+        <span class="gauge"><i style="width:${100*v.score/v.of}%;background:${barColor(v.score,v.of)}"></i></span>
+        <span class="score" style="color:${barColor(v.score,v.of)}">${v.score}/${v.of}</span>
+        <a class="resume-pill" href="resumes/${encodeURIComponent(name)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">open PDF ↗</a>
+      </div></div>
+      <div class="body"><div class="sect"><h3>work on</h3>
+        ${v.work_on.length ? '<ul class="workon">' + v.work_on.map(w =>
+          `<li><span class="cid">${esc(w.id)}</span>${esc(w.q)}${w.note ? `<div class="note">${esc(w.note)}</div>` : ''}</li>`).join('') + '</ul>'
+        : '<div class="pass-row">perfect — nothing to work on</div>'}
+      </div></div>`;
+    vbox.appendChild(card);
+  }
+
+  // pipeline work-on (B/C/D failures)
+  const pipe = (scores.work_on || []).filter(w => !w.id.startsWith('A'));
+  const pipeOf = (g.B?.of??0)+(g.C?.of??0)+(g.D?.of??0);
+  const pipeScore = (g.B?.score??0)+(g.C?.score??0)+(g.D?.score??0);
+  document.getElementById('pipeScore').textContent = `${pipeScore}/${pipeOf}`;
+  document.getElementById('pipeScore').style.color = barColor(pipeScore, pipeOf);
+  const groups = {B:'Tailoring', C:'Delivery', D:'Tracking'};
+  document.getElementById('pipeWork').innerHTML = Object.entries(groups).map(([k, label]) => {
+    const items = pipe.filter(w => w.id.startsWith(k));
+    if (!items.length) return `<div class="grp">${label} — clean</div>`;
+    return `<div class="grp">${label}</div><ul class="workon">` + items.map(w =>
+      `<li><span class="cid">${esc(w.id)}</span>${esc(w.q)}${w.note ? `<div class="note">${esc(w.note)}</div>` : ''}</li>`).join('') + '</ul>';
+  }).join('');
+
+  // sent history: every attempt, resume <-> JD
+  const rows = log.slice().reverse();
+  document.getElementById('sentCount').textContent = rows.length + ' attempts';
+  document.getElementById('sent').innerHTML =
+    '<tr><th>date</th><th>company / role</th><th>resume sent</th><th>status</th></tr>' +
+    rows.map(e => {
+      const r = e.details && e.details.resume;
+      const short = r ? (r.match(/\((.+)\)/) || [,r])[1] : null;
+      return `<tr>
+        <td class="date">${esc((e.timestamp||'').slice(0,10))}</td>
+        <td><b>${esc(e.company)}</b><br><a class="link" href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.role)}</a></td>
+        <td>${r ? `<a class="resume-pill" href="resumes/${encodeURIComponent(r)}" target="_blank" rel="noopener">${esc(short)}</a>`
+               : '<span class="date">not recorded</span>'}</td>
+        <td><span class="badge b-${esc(e.status)}">${esc(e.status)}</span></td>
+      </tr>`;
+    }).join('');
+}).catch(err => {
+  document.getElementById('variants').innerHTML = `<div class="empty">failed to load: ${esc(err.message)}</div>`;
+});
+</script>
+</body>
+</html>

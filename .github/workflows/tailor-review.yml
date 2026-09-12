@@ -1,0 +1,67 @@
+name: tailor-review
+
+# review.html (GitHub Pages) fires repository_dispatch with a JD URL or
+# pasted text; this tailors the resume the same way the applier does and
+# commits reviews/<id>/ so the page can show base vs tailored and take a
+# swipe verdict. Pages redeploys on the push.
+
+on:
+  repository_dispatch:
+    types: [tailor-review]
+  workflow_dispatch:
+    inputs:
+      url:
+        description: JD URL (greenhouse / lever / ashby / anything readable)
+        required: false
+      role:
+        description: Role title override
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tailor-review
+  cancel-in-progress: false
+
+jobs:
+  tailor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: deps
+        working-directory: auto-apply
+        run: |
+          uv sync
+          uv run playwright install --with-deps chromium
+
+      - name: tailor
+        working-directory: auto-apply
+        env:
+          URL: ${{ github.event.client_payload.url || inputs.url }}
+          ROLE: ${{ github.event.client_payload.role || inputs.role }}
+          JD_TEXT: ${{ github.event.client_payload.jd_text }}
+          RID: ${{ github.event.client_payload.id }}
+        run: |
+          RID="${RID:-$(date -u +%Y%m%d-%H%M%S)}"
+          ARGS=(--id "$RID" --url "$URL" --role "$ROLE")
+          if [ -n "$JD_TEXT" ]; then printf '%s' "$JD_TEXT" > /tmp/jd.txt; ARGS+=(--jd-text-file /tmp/jd.txt); fi
+          uv run python review_tailor.py "${ARGS[@]}" || true
+          echo "RID=$RID" >> "$GITHUB_ENV"
+
+      - name: commit review
+        run: |
+          git config user.name "AssiamahS"
+          git config user.email "<git-email>"
+          git add reviews/
+          git commit -m "review: tailored ${RID}" || { echo "nothing to commit"; exit 0; }
+          for i in 1 2 3; do
+            git pull --rebase -q origin main && git push -q origin HEAD:main && break
+            sleep 5
+          done

@@ -1,0 +1,8 @@
+auto-apply/screenshots/
+auto-apply/.venv/
+__pycache__/
+*.pyc
+# resumes tracked: repo private + pages publishes whitelist only; ci needs the pdf
+.env
+.DS_Store
+auto-apply/in_flight.json

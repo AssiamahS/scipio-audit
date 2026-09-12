@@ -1,0 +1,117 @@
+# slyci-native pipeline — runs on the cloudbox codespace, not GitHub Actions.
+# GitHub never reads .slyci/, so there is no double-run and no minutes burned.
+# Runs are sliced to fit the box's 30-min idle stop (see process_queue.py).
+# Secrets (GMAIL_APP_PASSWORD, GH_TOKEN) arrive as plain env vars from
+# Codespaces user secrets; slyci passes the host env through to every step.
+name: apply
+on:
+  push:
+  workflow_dispatch:
+# per-STEP cap in slyci. 9/9-9/10: the 12-app slices ran 68-97 min against a
+# 55-min cap — slyci killed only the shell, the applier finished on its own,
+# the step was marked failed, and the commit step never ran, so every next
+# wake's checkout -f wiped the results and re-applied to the same reqs
+# (PayPay x4, CoreWeave x4, Samsara x3). Keep this above the worst slice.
+timeout-minutes: 100
+jobs:
+  apply:
+    steps:
+      - name: deps
+        working-directory: auto-apply
+        run: |
+          uv sync
+          # the universal image ships a dead yarnpkg apt repo that fails
+          # signature checks and kills --with-deps' apt-get update
+          sudo rm -f /etc/apt/sources.list.d/yarn.list
+          uv run playwright install --with-deps chromium
+          # real Google Chrome for the persistent-profile browser (open_browser);
+          # failure is fine, the applier falls back to chromium
+          if ! command -v google-chrome >/dev/null; then
+            (wget -q -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+              && sudo apt-get install -y -qq /tmp/chrome.deb >/dev/null 2>&1 && echo "google-chrome installed") || echo "chrome install skipped"
+          fi
+      - name: scout filter fixtures (a wrong filter costs real submits)
+        working-directory: auto-apply
+        run: uv run python test_scout_filters.py
+      - name: email loop fixtures (a follow-up to a no-reply relay is a real embarrassment)
+        working-directory: auto-apply
+        run: uv run python test_email_loop.py
+      - name: workday fixtures (salary bracket, screening canon, per-tenant password)
+        working-directory: auto-apply
+        run: uv run python test_workday.py
+      - name: resume rules on the static variants (advisory; the applier blocks per artifact)
+        continue-on-error: true
+        working-directory: auto-apply
+        run: uv run python resume_rules.py
+      - name: process queue + daily batch
+        # a killed or crashed batch must still reach the commit step below —
+        # its apply_log/jobs.json edits are the only record of real submits
+        continue-on-error: true
+        working-directory: auto-apply
+        env:
+          # stream the applier's prints into the run log as they happen — a
+          # killed run used to leave the batch step blank (block-buffered)
+          PYTHONUNBUFFERED: "1"
+        run: uv run python process_queue.py
+      - name: commit apply results early
+        # the codespace idle-stops 30 min after a wake; everything below is
+        # optional bookkeeping, so land the batch outcome first (8/24: two
+        # full runs vanished with nothing committed)
+        if: always()
+        run: |
+          for f in queue.json jobs.json NJ_BBB_EMPLOYERS.md auto-apply/apply_log.json auto-apply/batch_state.json auto-apply/wake_log.json auto-apply/discovered_boards.json auto-apply/scout_config.json auto-apply/resumes_tailored auto-apply/screenshots; do
+            git add "$f" 2>/dev/null || true
+          done
+          if ! git diff --cached --quiet; then
+            git commit -m "log: slyci apply run $GITHUB_SHA"
+            # 9/12: scout left scout_config/discovered_boards edited but unstaged,
+            # `pull --rebase` refused ("You have unstaged changes"), the push
+            # never ran and four runs of results sat in the tree until the
+            # next checkout -f wiped them. autostash parks anything left over.
+            git pull --rebase --autostash origin main
+            git push origin HEAD:main
+          fi
+      - name: sweep rejection emails
+        continue-on-error: true
+        working-directory: auto-apply
+        env:
+          PYTHONUNBUFFERED: "1"
+        # hard cap: a Gmail IMAP stall on 9/5 held this step 10+ min and
+        # starved every step after it; the box idle-stops at 30
+        run: timeout 480 uv run python rejections.py --days 14
+      - name: parked digest (jobs waiting on a human)
+        continue-on-error: true
+        working-directory: auto-apply
+        run: uv run python parked.py
+      - name: funnel stats
+        continue-on-error: true
+        working-directory: auto-apply
+        run: uv run python funnel_stats.py
+      - name: 100-point scorecard
+        continue-on-error: true
+        working-directory: auto-apply
+        run: uv run python resume_score.py
+      - name: follow-ups (day 5 + day 12, sent to human addresses, drafted otherwise)
+        continue-on-error: true
+        working-directory: auto-apply
+        run: uv run python followups.py
+      - name: rejection feedback asks (human senders only)
+        continue-on-error: true
+        working-directory: auto-apply
+        run: uv run python rejection_reply.py
+      - name: daily digest to the phone (once a day, after the last slice)
+        continue-on-error: true
+        working-directory: auto-apply
+        run: uv run python digest.py
+      - name: commit logs
+        run: |
+          # one add per path: git stages NOTHING if any pathspec in a single
+          # add is missing, and batch_state.json only exists after a batch
+          for f in queue.json jobs.json auto-apply/scout_config.json auto-apply/discovered_boards.json auto-apply/nj_bbb_employers.json NJ_BBB_EMPLOYERS.md auto-apply/parked.md auto-apply/HAND_APPLY.md auto-apply/apply_log.json auto-apply/rejections.json auto-apply/confirmations.json auto-apply/funnel_stats.json auto-apply/followups_state.json auto-apply/rejection_replies_state.json auto-apply/notify_state.json auto-apply/digest_state.json auto-apply/interview_issues.json auto-apply/batch_state.json auto-apply/wake_log.json auto-apply/needs_reply.json auto-apply/resume_scores.json auto-apply/resumes_tailored auto-apply/screenshots briefs; do
+            git add "$f" 2>/dev/null || true
+          done
+          if ! git diff --cached --quiet; then
+            git commit -m "log: slyci apply run $GITHUB_SHA"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi

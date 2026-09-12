@@ -1,0 +1,21 @@
+name = "scipio-api"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+REPO_OWNER = "AssiamahS"
+REPO_NAME = "scipio"
+ALLOWED_ORIGIN = "https://assiamahs.github.io"
+CODESPACE_NAME = "psychic-space-fortnight-q7vqxxr94qqh9p97"
+
+# hourly wakes across the 12-16 UTC batch window. The codespace idle-stops
+# 30 min after each wake, so process_queue runs one short deadline-bounded
+# slice per wake (3 apps, 18 min) until the day's submit target is met.
+# 12 UTC = 8am EDT (business-hours floor); in EST that wake is skipped by
+# the applier and the 13/14/15 wakes carry the day.
+[triggers]
+crons = ["0 12 * * *", "0 13 * * *", "0 14 * * *", "0 15 * * *"]
+
+# GITHUB_TOKEN is set as a secret via:
+#   npx wrangler secret put GITHUB_TOKEN
+# (paste your token when prompted - it's stored encrypted, never in code)

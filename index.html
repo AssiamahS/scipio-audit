@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scipio - Job Tracker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+.container{max-width:1200px;margin:0 auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:1px solid #1e293b;margin-bottom:24px;flex-wrap:wrap;gap:10px}
+h1{font-size:24px;font-weight:700;color:#f8fafc}
+h1 span{color:#38bdf8}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:#1e293b;border-radius:12px;padding:16px;text-align:center;border:1px solid #334155}
+.stat-card .number{font-size:28px;font-weight:800;color:#38bdf8}
+.stat-card .label{font-size:12px;color:#94a3b8;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
+.stat-card.interviews .number{color:#a78bfa}
+.stat-card.offers .number{color:#34d399}
+.stat-card.rate .number{color:#fbbf24}
+.stat-card.week .number{color:#fb923c}
+.section{background:#1e293b;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #334155}
+.section h2{font-size:16px;font-weight:600;margin-bottom:16px;color:#f8fafc}
+.filters{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.filters select,.filters input{background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:8px 12px;border-radius:8px;font-size:13px}
+.filters input{flex:1;min-width:180px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 12px;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#64748b;border-bottom:1px solid #334155}
+td{padding:12px;font-size:14px;border-bottom:1px solid #1e293b}
+tr:hover{background:#1e293b80}
+.status{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;text-transform:uppercase}
+.status-wishlist{background:#334155;color:#94a3b8}
+.status-applied{background:#1e3a5f;color:#38bdf8}
+.status-screening{background:#3b2f63;color:#a78bfa}
+.status-interview{background:#2d3b2d;color:#34d399}
+.status-offer{background:#3b3520;color:#fbbf24}
+.status-rejected{background:#3b2020;color:#f87171}
+.status-withdrawn{background:#334155;color:#64748b}
+.status-accepted{background:#1a3a2a;color:#4ade80}
+.status-bad_url{background:#3b2020;color:#fca5a5}
+.status-needs_code{background:#3b3520;color:#fbbf24}
+.jd-link{color:#a78bfa;cursor:pointer;font-size:12px;text-decoration:underline}
+.salary{color:#34d399;font-weight:600}
+.company{font-weight:600;color:#f8fafc}
+.role{color:#94a3b8}
+.url-link{color:#38bdf8;text-decoration:none;font-size:12px}
+.url-link:hover{text-decoration:underline}
+.notes-text{font-size:11px;color:#64748b;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn{padding:4px 10px;border-radius:6px;border:none;font-size:12px;cursor:pointer;font-weight:500}
+.btn-update{background:#1e3a5f;color:#38bdf8}
+.btn-remove{background:#3b2020;color:#f87171}
+.btn-apply{background:#1a3a2a;color:#4ade80}
+.btn-add{background:#38bdf8;color:#0f172a;padding:8px 16px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer}
+.btn-add:hover{background:#7dd3fc}
+.btn-sm{background:#334155;color:#94a3b8;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-size:12px}
+.btn-sm:hover{background:#475569}
+.empty{text-align:center;padding:40px;color:#64748b}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#1e293b;border-radius:16px;padding:24px;width:90%;max-width:500px;border:1px solid #334155;max-height:90vh;overflow-y:auto}
+.modal h3{margin-bottom:16px;color:#f8fafc}
+.modal label{display:block;font-size:13px;color:#94a3b8;margin:10px 0 4px}
+.modal input,.modal select,.modal textarea{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:14px;font-family:inherit}
+.modal textarea{resize:vertical;height:60px}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-cancel{background:#334155;color:#94a3b8;padding:8px 16px;border-radius:8px;border:none;cursor:pointer}
+.btn-save{background:#38bdf8;color:#0f172a;padding:8px 20px;border-radius:8px;border:none;font-weight:600;cursor:pointer}
+.pipeline{display:flex;gap:4px;flex-wrap:wrap}
+.pipe-stage{flex:1;min-width:90px;text-align:center;padding:10px 6px;border-radius:8px;background:#0f172a;border:1px solid #334155;cursor:pointer}
+.pipe-stage .pipe-count{font-size:22px;font-weight:700}
+.pipe-stage .pipe-label{font-size:10px;color:#64748b;text-transform:uppercase}
+.target-info{background:#0f172a;border-radius:8px;padding:12px 16px;font-size:13px;color:#94a3b8;display:flex;gap:16px;flex-wrap:wrap}
+.target-info span{color:#e2e8f0;font-weight:500}
+.footer{font-size:12px;color:#475569;text-align:center;padding:16px}
+.footer a{color:#38bdf8;cursor:pointer}
+.toast{position:fixed;bottom:20px;right:20px;background:#334155;color:#e2e8f0;padding:12px 20px;border-radius:10px;font-size:14px;z-index:200;display:none;border:1px solid #475569}
+.toast.show{display:block;animation:fadeIn .3s}
+.sync-status{font-size:11px;padding:3px 8px;border-radius:6px;margin-left:8px}
+.sync-ok{background:#1a3a2a;color:#4ade80}
+.sync-saving{background:#3b3520;color:#fbbf24}
+.sync-error{background:#3b2020;color:#f87171}
+.sync-offline{background:#334155;color:#94a3b8}
+.setup-screen{display:flex;align-items:center;justify-content:center;min-height:80vh;text-align:center}
+.setup-box{background:#1e293b;border-radius:16px;padding:40px;max-width:500px;width:90%;border:1px solid #334155}
+.setup-box h2{margin-bottom:8px;color:#f8fafc}
+.setup-box p{color:#94a3b8;margin-bottom:20px;font-size:14px;line-height:1.5}
+.setup-box input{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:10px 12px;border-radius:8px;font-size:14px;margin-bottom:8px}
+.setup-box a{color:#38bdf8}
+.setup-box .btn-save{width:100%;padding:12px;font-size:16px}
+.setup-box .skip{color:#64748b;font-size:13px;margin-top:12px;cursor:pointer}
+.setup-box .skip:hover{color:#94a3b8}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  th:nth-child(4),td:nth-child(4){display:none}
+  .actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- Setup screen - Profile wizard for new users -->
+<div class="container" id="setupScreen" style="display:none">
+  <div class="setup-screen">
+    <div class="setup-box" style="max-width:560px">
+      <h2><span style="color:#38bdf8">S</span>cipio</h2>
+      <p>Set up your profile to auto-fill job applications across all your devices.</p>
+
+      <!-- Step 1: Basic info -->
+      <div id="wizStep1">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><label style="font-size:12px;color:#64748b">First Name *</label><input type="text" id="wFirstName" placeholder="Sylvester"></div>
+          <div><label style="font-size:12px;color:#64748b">Last Name *</label><input type="text" id="wLastName" placeholder="Assiamah"></div>
+        </div>
+        <label style="font-size:12px;color:#64748b">Email *</label>
+        <input type="email" id="wEmail" placeholder="you@email.com">
+        <label style="font-size:12px;color:#64748b">Phone</label>
+        <input type="tel" id="wPhone" placeholder="<phone>">
+        <button class="btn-save" style="width:100%;margin-top:12px" onclick="wizNext(2)">Next</button>
+      </div>
+
+      <!-- Step 2: Location + work -->
+      <div id="wizStep2" style="display:none">
+        <label style="font-size:12px;color:#64748b">Street Address</label>
+        <input type="text" id="wAddress" placeholder="1174 Summit Ave">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px">
+          <div><label style="font-size:12px;color:#64748b">City</label><input type="text" id="wCity" placeholder="Jersey City"></div>
+          <div><label style="font-size:12px;color:#64748b">State</label><input type="text" id="wState" placeholder="NJ" maxlength="2"></div>
+          <div><label style="font-size:12px;color:#64748b">Zip</label><input type="text" id="wZip" placeholder="07306"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><label style="font-size:12px;color:#64748b">Current Title</label><input type="text" id="wTitle" placeholder="IT Manager"></div>
+          <div><label style="font-size:12px;color:#64748b">Current Company</label><input type="text" id="wCompany" placeholder="Acme Health"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><label style="font-size:12px;color:#64748b">Years Experience</label><input type="number" id="wYears" placeholder="7"></div>
+          <div><label style="font-size:12px;color:#64748b">Desired Salary</label><input type="text" id="wSalary" placeholder="120000"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn-cancel" style="flex:1" onclick="wizBack(1)">Back</button>
+          <button class="btn-save" style="flex:2" onclick="wizNext(3)">Next</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Links + target -->
+      <div id="wizStep3" style="display:none">
+        <label style="font-size:12px;color:#64748b">LinkedIn URL</label>
+        <input type="url" id="wLinkedin" placeholder="https://linkedin.com/in/yourname">
+        <label style="font-size:12px;color:#64748b">GitHub / Portfolio URL</label>
+        <input type="url" id="wGithub" placeholder="https://github.com/yourname">
+        <label style="font-size:12px;color:#64748b">Target Role</label>
+        <input type="text" id="wTargetRole" placeholder="IT Manager / Healthcare Tech">
+        <label style="font-size:12px;color:#64748b">Target Location</label>
+        <input type="text" id="wTargetLocation" placeholder="Remote">
+        <label style="font-size:12px;color:#64748b">Minimum Salary</label>
+        <input type="text" id="wMinSalary" placeholder="$100,000+">
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn-cancel" style="flex:1" onclick="wizBack(2)">Back</button>
+          <button class="btn-save" style="flex:2" onclick="finishSetup()">Start Tracking</button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:center;gap:6px;margin-top:16px">
+        <div id="wizDot1" style="width:8px;height:8px;border-radius:50%;background:#38bdf8"></div>
+        <div id="wizDot2" style="width:8px;height:8px;border-radius:50%;background:#334155"></div>
+        <div id="wizDot3" style="width:8px;height:8px;border-radius:50%;background:#334155"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main app -->
+<div class="container" id="mainApp" style="display:none">
+  <header>
+    <h1><span>S</span>cipio <span class="sync-status" id="syncBadge"></span></h1>
+    <div class="header-actions">
+      <button class="btn-sm" onclick="exportData()" title="Download JSON backup">Export</button>
+      <button class="btn-sm" onclick="document.getElementById('importFile').click()" title="Import JSON backup">Import</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn-sm" onclick="showSettings()" title="Edit profile & settings">Profile</button>
+      <button class="btn-add" onclick="openAdd()">+ Add Job</button>
+    </div>
+  </header>
+
+  <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
+    <input id="applyUrlInput" type="url" placeholder="Paste a job URL — greenhouse / lever / workday — and Scipio applies for you"
+      style="flex:1;min-width:260px;padding:10px 12px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:14px"
+      onkeydown="if(event.key==='Enter')applyFromUrl()">
+    <label style="font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:4px">
+      <input type="checkbox" id="applyDryRun">dry run
+    </label>
+    <button class="btn-add" onclick="applyFromUrl()">Apply</button>
+    <span id="applyUrlStatus" style="font-size:12px;color:#94a3b8"></span>
+  </div>
+
+  <div class="target-info" style="margin-bottom:20px" id="targetBar">
+    <div>Target: <span id="tTarget">--</span></div>
+    <div>Location: <span id="tLocation">--</span></div>
+    <div>Min Salary: <span id="tSalary">--</span></div>
+    <div>Profile: <span id="tProfile">--</span></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="number" id="totalCount">0</div><div class="label">Total</div></div>
+    <div class="stat-card interviews"><div class="number" id="interviewCount">0</div><div class="label">Interviews</div></div>
+    <div class="stat-card offers"><div class="number" id="offerCount">0</div><div class="label">Offers</div></div>
+    <div class="stat-card rate"><div class="number" id="responseRate">--</div><div class="label">Response Rate</div></div>
+    <div class="stat-card week"><div class="number" id="weekCount">0</div><div class="label">This Week</div></div>
+    <div class="stat-card"><div class="number" id="rejectedCount" style="color:#f87171">0</div><div class="label">Rejected</div></div>
+  </div>
+
+  <div class="section">
+    <h2>Pipeline</h2>
+    <div class="pipeline" id="pipeline"></div>
+  </div>
+
+  <div class="section">
+    <h2>Submitted Applications</h2>
+    <div id="submittedList" style="font-size:14px"></div>
+  </div>
+
+  <div class="section">
+    <h2>Applications</h2>
+    <div class="filters">
+      <select id="filterStatus" onchange="renderTable()">
+        <option value="">All Statuses</option>
+        <option value="wishlist">Wishlist</option>
+        <option value="applied">Applied</option>
+        <option value="screening">Screening</option>
+        <option value="interview">Interview</option>
+        <option value="offer">Offer</option>
+        <option value="rejected">Rejected</option>
+        <option value="withdrawn">Withdrawn</option>
+        <option value="accepted">Accepted</option>
+      </select>
+      <input type="text" id="searchBox" placeholder="Search company or role..." oninput="renderTable()">
+    </div>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Company</th><th>Role</th><th>Status</th><th>Date</th><th>Salary</th><th>Actions</th></tr></thead>
+      <tbody id="jobsBody"></tbody>
+    </table>
+    </div>
+    <div class="empty" id="emptyMsg" style="display:none">No applications yet. Click "+ Add Job" to get started.</div>
+  </div>
+
+  <div class="section">
+    <h2>Rejections</h2>
+    <div id="rejectionsFeed" style="font-size:13px;color:#94a3b8;max-height:220px;overflow-y:auto"></div>
+  </div>
+
+  <div class="section">
+    <h2>Activity Log</h2>
+    <div id="activityLog" style="font-size:13px;color:#94a3b8;max-height:200px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">Add Application</h3>
+    <label>Company *</label><input type="text" id="mCompany" placeholder="e.g. Optum">
+    <label>Role *</label><input type="text" id="mRole" placeholder="e.g. IT Manager">
+    <label>Job URL</label><input type="text" id="mUrl" placeholder="Link to posting">
+    <label>Salary</label><input type="text" id="mSalary" placeholder="e.g. 120k-150k">
+    <label>Status</label>
+    <select id="mStatus">
+      <option value="wishlist">Wishlist</option>
+      <option value="applied" selected>Applied</option>
+      <option value="screening">Screening</option>
+      <option value="interview">Interview</option>
+      <option value="offer">Offer</option>
+    </select>
+    <label>Notes</label><textarea id="mNotes" placeholder="Any notes..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveJob()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Status Modal -->
+<div class="modal-overlay" id="statusModal">
+  <div class="modal">
+    <h3>Update Status</h3>
+    <input type="hidden" id="statusJobId">
+    <label>New Status</label>
+    <select id="newStatus">
+      <option value="wishlist">Wishlist</option>
+      <option value="applied">Applied</option>
+      <option value="screening">Screening</option>
+      <option value="interview">Interview</option>
+      <option value="offer">Offer</option>
+      <option value="rejected">Rejected</option>
+      <option value="withdrawn">Withdrawn</option>
+      <option value="accepted">Accepted</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeStatusModal()">Cancel</button>
+      <button class="btn-save" onclick="confirmUpdateStatus()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- JD Modal -->
+<div class="modal-overlay" id="jdModal" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="modal" style="max-width:700px">
+    <h3 id="jdTitle">Job Description</h3>
+    <div id="jdBody" style="white-space:pre-wrap;font-size:13px;color:#cbd5e1;max-height:60vh;overflow-y:auto;line-height:1.5"></div>
+    <div style="margin-top:16px;text-align:right"><button class="btn-sm" onclick="document.getElementById('jdModal').classList.remove('active')">Close</button></div>
+  </div>
+</div>
+
+<!-- Settings Modal - Edit Profile -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal" style="max-height:90vh;overflow-y:auto">
+    <h3>Edit Profile</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><label>First Name</label><input type="text" id="sFirstName"></div>
+      <div><label>Last Name</label><input type="text" id="sLastName"></div>
+    </div>
+    <label>Email</label><input type="email" id="sEmail">
+    <label>Phone</label><input type="tel" id="sPhone">
+    <label>Address</label><input type="text" id="sAddress">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px">
+      <div><label>City</label><input type="text" id="sCity"></div>
+      <div><label>State</label><input type="text" id="sState"></div>
+      <div><label>Zip</label><input type="text" id="sZip"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><label>Title</label><input type="text" id="sTitle"></div>
+      <div><label>Company</label><input type="text" id="sCompany"></div>
+    </div>
+    <label>LinkedIn</label><input type="url" id="sLinkedin">
+    <label>GitHub</label><input type="url" id="sGithub">
+    <label>Target Role</label><input type="text" id="sTargetRole">
+    <label>Target Location</label><input type="text" id="sTargetLocation">
+    <label>Min Salary</label><input type="text" id="sMinSalary">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('settingsModal').classList.remove('active')">Cancel</button>
+      <button class="btn-save" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="footer" id="mainApp">
+  Scipio Job Tracker | <span id="footerMode"></span> |
+  <a onclick="exportData()">Backup</a> |
+  <a href="reports.html" style="color:#38bdf8">Report Cards</a>
+</div>
+
+<script>
+// === CONFIG ===
+// API_BASE auto-detects: on Cloudflare Pages, API is same-origin (/api/...)
+// On GitHub Pages or local, falls back to local-only mode
+const API_BASE = (function() {
+  const host = window.location.hostname;
+  // Cloudflare Pages: API is same-origin
+  if (host.includes('pages.dev') || host.includes('scipio')) return '';
+  // Local development
+  if (host === 'localhost' || host === '127.0.0.1') return '';
+  // GitHub Pages or other: no API (local-only mode)
+  return '';
+})();
+// Worker that holds the GitHub token and dispatches the auto-apply CI run
+const APPLY_API = 'https://scipio-api.sylvesterassiamahpm.workers.dev';
+
+async function applyFromUrl() {
+  const input = document.getElementById('applyUrlInput');
+  const status = document.getElementById('applyUrlStatus');
+  const url = input.value.trim();
+  if (!url) { status.textContent = 'paste a URL first'; return; }
+  status.textContent = 'queueing…';
+  try {
+    const r = await fetch(APPLY_API + '/api/apply', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({url, dry_run: document.getElementById('applyDryRun').checked}),
+    });
+    const data = await r.json();
+    if (!r.ok || !data.queued) { status.textContent = 'failed: ' + (data.error || r.status); return; }
+    status.innerHTML = (data.dry_run ? 'dry run' : 'applying') +
+      ' queued, runner ' + (data.runner && data.runner.state || 'waking') +
+      ' — <a href="' + data.watch + '" target="_blank" style="color:#38bdf8">watch commits</a>' +
+      (data.known_ats ? '' : ' (unrecognized ATS — may quarantine as bad_url)');
+    input.value = '';
+  } catch (e) {
+    status.textContent = 'failed: ' + e.message;
+  }
+}
+
+const STORAGE_KEY = 'scipio_jobtracker';
+const PROFILE_KEY = 'scipio_profile';
+const LOG_KEY = 'scipio_log';
+
+let db = {jobs:[], next_id:1};
+let profile = null;
+let saving = false;
+
+const STATUSES = ['wishlist','needs_code','applied','screening','interview','offer','rejected','withdrawn','accepted','bad_url'];
+const SUBMITTED_STATUSES = ['applied','screening','interview','offer','accepted'];
+const STATUS_COLORS = {
+  wishlist:'#94a3b8',applied:'#38bdf8',screening:'#a78bfa',interview:'#34d399',
+  offer:'#fbbf24',rejected:'#f87171',withdrawn:'#64748b',accepted:'#4ade80'
+};
+
+// === INIT ===
+function init(){
+  profile = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
+
+  if(!profile && !hasAPI()){
+    // read-only static hosting (github pages): no auto-fill, wizard is
+    // pointless — go straight to the tracker
+    document.getElementById('setupScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    loadData();
+  } else if(!profile){
+    // New user — show profile wizard
+    document.getElementById('setupScreen').style.display='block';
+    document.getElementById('mainApp').style.display='none';
+  } else {
+    document.getElementById('setupScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    updateTargetBar();
+    loadData();
+  }
+}
+
+// === PROFILE WIZARD ===
+function wizNext(step){
+  if(step===2){
+    const fn=document.getElementById('wFirstName').value.trim();
+    const ln=document.getElementById('wLastName').value.trim();
+    const em=document.getElementById('wEmail').value.trim();
+    if(!fn||!ln||!em){toast('Name and email are required');return;}
+  }
+  for(let i=1;i<=3;i++){
+    document.getElementById('wizStep'+i).style.display=i===step?'block':'none';
+    document.getElementById('wizDot'+i).style.background=i===step?'#38bdf8':i<step?'#34d399':'#334155';
+  }
+}
+function wizBack(step){wizNext(step);}
+
+function finishSetup(){
+  profile = {
+    first_name: document.getElementById('wFirstName').value.trim(),
+    last_name: document.getElementById('wLastName').value.trim(),
+    email: document.getElementById('wEmail').value.trim(),
+    phone: document.getElementById('wPhone').value.trim(),
+    address: document.getElementById('wAddress').value.trim(),
+    city: document.getElementById('wCity').value.trim(),
+    state: document.getElementById('wState').value.trim().toUpperCase(),
+    zip: document.getElementById('wZip').value.trim(),
+    country: 'United States',
+    current_title: document.getElementById('wTitle').value.trim(),
+    current_company: document.getElementById('wCompany').value.trim(),
+    years_experience: document.getElementById('wYears').value.trim(),
+    desired_salary: document.getElementById('wSalary').value.trim(),
+    linkedin: document.getElementById('wLinkedin').value.trim(),
+    github: document.getElementById('wGithub').value.trim(),
+    target_role: document.getElementById('wTargetRole').value.trim() || 'IT Manager',
+    target_location: document.getElementById('wTargetLocation').value.trim() || 'Remote',
+    min_salary: document.getElementById('wMinSalary').value.trim() || '$100,000+',
+    created: new Date().toISOString(),
+  };
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  document.getElementById('setupScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  updateTargetBar();
+  loadData();
+  toast('Profile created! You\'re all set.');
+  // Sync profile to backend if available
+  syncProfile();
+}
+
+function updateTargetBar(){
+  if(!profile)return;
+  document.getElementById('tTarget').textContent=profile.target_role||'--';
+  document.getElementById('tLocation').textContent=profile.target_location||'--';
+  document.getElementById('tSalary').textContent=profile.min_salary||'--';
+  document.getElementById('tProfile').textContent=`${profile.first_name} ${profile.last_name}`;
+}
+
+function showSettings(){
+  if(!profile)return;
+  document.getElementById('sFirstName').value=profile.first_name||'';
+  document.getElementById('sLastName').value=profile.last_name||'';
+  document.getElementById('sEmail').value=profile.email||'';
+  document.getElementById('sPhone').value=profile.phone||'';
+  document.getElementById('sAddress').value=profile.address||'';
+  document.getElementById('sCity').value=profile.city||'';
+  document.getElementById('sState').value=profile.state||'';
+  document.getElementById('sZip').value=profile.zip||'';
+  document.getElementById('sTitle').value=profile.current_title||'';
+  document.getElementById('sCompany').value=profile.current_company||'';
+  document.getElementById('sLinkedin').value=profile.linkedin||'';
+  document.getElementById('sGithub').value=profile.github||'';
+  document.getElementById('sTargetRole').value=profile.target_role||'';
+  document.getElementById('sTargetLocation').value=profile.target_location||'';
+  document.getElementById('sMinSalary').value=profile.min_salary||'';
+  document.getElementById('settingsModal').classList.add('active');
+}
+
+function saveSettings(){
+  profile.first_name=document.getElementById('sFirstName').value.trim();
+  profile.last_name=document.getElementById('sLastName').value.trim();
+  profile.email=document.getElementById('sEmail').value.trim();
+  profile.phone=document.getElementById('sPhone').value.trim();
+  profile.address=document.getElementById('sAddress').value.trim();
+  profile.city=document.getElementById('sCity').value.trim();
+  profile.state=document.getElementById('sState').value.trim();
+  profile.zip=document.getElementById('sZip').value.trim();
+  profile.current_title=document.getElementById('sTitle').value.trim();
+  profile.current_company=document.getElementById('sCompany').value.trim();
+  profile.linkedin=document.getElementById('sLinkedin').value.trim();
+  profile.github=document.getElementById('sGithub').value.trim();
+  profile.target_role=document.getElementById('sTargetRole').value.trim();
+  profile.target_location=document.getElementById('sTargetLocation').value.trim();
+  profile.min_salary=document.getElementById('sMinSalary').value.trim();
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  document.getElementById('settingsModal').classList.remove('active');
+  updateTargetBar();
+  syncProfile();
+  toast('Profile updated');
+}
+
+// === API (Cloudflare Pages Functions backend) ===
+// API exists when hosted on Cloudflare Pages (pages.dev domain) or localhost
+function hasAPI(){
+  const h = window.location.hostname;
+  return h.includes('pages.dev') || h === 'localhost' || h === '127.0.0.1';
+}
+
+async function apiFetch(path, opts={}){
+  return fetch(path, {
+    ...opts,
+    headers: {'Content-Type':'application/json', ...(opts.headers||{})},
+  });
+}
+
+async function loadFromAPI(){
+  setSyncBadge('saving','Loading...');
+  try{
+    const r = await apiFetch('/api/jobs');
+    if(r.ok){
+      const data = await r.json();
+      db = {jobs: data.jobs||[], next_id: data.next_id||1};
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      setSyncBadge('ok','Synced');
+    } else {
+      throw new Error(`API ${r.status}`);
+    }
+  } catch(e){
+    console.error('API load failed:', e);
+    // static hosting (github pages): no /api, read jobs.json from the repo
+    try{
+      const r = await fetch('jobs.json', {cache:'no-store'});
+      if(!r.ok) throw new Error(`static ${r.status}`);
+      const data = await r.json();
+      db = {jobs: data.jobs||[], next_id: data.next_id||1};
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      setSyncBadge('ok','Read-only');
+    } catch(e2){
+      console.error('Static load failed:', e2);
+      setSyncBadge('error','Offline');
+      loadFromLocal();
+    }
+  }
+  render();
+  renderLog();
+  updateFooter();
+  loadApplyLog();
+  loadRejections();
+}
+
+async function loadApplyLog(){
+  // scipio applier writes this from CI runs; show it as activity
+  try{
+    const r = await fetch('apply_log.json', {cache:'no-store'});
+    if(!r.ok) return;
+    const log = await r.json();
+    const el = document.getElementById('activityLog');
+    if(!el || !Array.isArray(log) || log.length===0) return;
+    el.innerHTML = log.slice().reverse().slice(0,20).map(l=>{
+      const t = (l.timestamp||'').slice(0,16).replace('T',' ');
+      return `<div style="padding:4px 0;border-bottom:1px solid #1e293b"><span style="color:#475569">${t}</span> <span class="status status-${l.status==='submitted'?'applied':'wishlist'}">${l.status}</span> ${l.company} — ${l.role}</div>`;
+    }).join('');
+  } catch(e){ /* no apply log on this host */ }
+}
+
+async function saveToAPI(message){
+  if(saving||!hasAPI()) return;
+  saving = true;
+  setSyncBadge('saving','Saving...');
+  try{
+    // Full overwrite via the jobs endpoint
+    // For simplicity, re-upload the whole jobs list
+    const r = await apiFetch('/api/jobs', {
+      method: 'POST',
+      body: JSON.stringify({_bulk: true, jobs: db.jobs, next_id: db.next_id}),
+    });
+    if(r.ok){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      setSyncBadge('ok','Synced');
+    } else {
+      throw new Error(`API save failed: ${r.status}`);
+    }
+  } catch(e){
+    console.error('Save failed:', e);
+    setSyncBadge('error','Save failed');
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  }
+  saving = false;
+}
+
+async function syncProfile(){
+  if(!hasAPI()||!profile) return;
+  try{
+    await apiFetch('/api/profile/default', {method:'PUT', body:JSON.stringify(profile)});
+  } catch(e){ console.error('Profile sync failed:', e); }
+}
+
+// === LOCAL STORAGE ===
+function loadFromLocal(){
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if(stored){
+    try{db=JSON.parse(stored);}catch(e){db={jobs:[],next_id:1};}
+  } else {
+    db = {jobs:[], next_id:1};
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  }
+}
+
+function saveToLocal(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+}
+
+// === UNIFIED LOAD/SAVE ===
+async function loadData(){
+  if(hasAPI()){
+    await loadFromAPI();
+    return;
+  }
+  // static hosting (github pages): jobs.json ships next to index.html
+  try{
+    const r = await fetch('jobs.json', {cache:'no-store'});
+    if(!r.ok) throw new Error(`static ${r.status}`);
+    const data = await r.json();
+    db = {jobs: data.jobs||[], next_id: data.next_id||1};
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    setSyncBadge('ok','Read-only');
+  } catch(e){
+    console.error('Static load failed:', e);
+    loadFromLocal();
+    setSyncBadge('offline','Local');
+  }
+  render();
+  renderLog();
+  updateFooter();
+  loadApplyLog();
+  loadRejections();
+}
+
+async function persistData(message){
+  saveToLocal(); // always save locally first
+  if(hasAPI()){
+    await saveToAPI(message);
+  }
+}
+
+// === SEED DATA ===
+function getSeed(){
+  return {"jobs":[], "next_id":1};
+}
+
+// === UI HELPERS ===
+function setSyncBadge(type, text){
+  const el=document.getElementById('syncBadge');
+  el.className='sync-status sync-'+type;
+  el.textContent=text;
+}
+
+function updateFooter(){
+  document.getElementById('footerMode').textContent = hasAPI() ? 'Synced' : 'Local storage';
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+function esc(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''}
+
+// === LOG ===
+function addLog(msg){
+  const logs=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');
+  logs.unshift({time:new Date().toISOString().slice(0,16).replace('T',' '),msg});
+  if(logs.length>100)logs.length=100;
+  localStorage.setItem(LOG_KEY, JSON.stringify(logs));
+  renderLog();
+}
+
+function renderLog(){
+  const logs=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');
+  const el=document.getElementById('activityLog');
+  if(!el)return;
+  if(logs.length===0){el.innerHTML='<div style="color:#475569">No activity yet.</div>';return;}
+  el.innerHTML=logs.slice(0,20).map(l=>`<div style="padding:4px 0;border-bottom:1px solid #1e293b"><span style="color:#475569">${l.time}</span> ${l.msg}</div>`).join('');
+}
+
+// === RENDER ===
+function render(){renderStats();renderPipeline();renderSubmitted();renderTable();}
+
+function showJD(id){
+  const j=(db.jobs||[]).find(x=>x.id===id);
+  if(!j)return;
+  document.getElementById('jdTitle').textContent=`${j.company} — ${j.role}`;
+  document.getElementById('jdBody').textContent=j.description||j.notes||'No job description captured for this one yet. It gets stored automatically the next time the bot visits the posting.';
+  document.getElementById('jdModal').classList.add('active');
+}
+
+function renderSubmitted(){
+  const el=document.getElementById('submittedList');
+  if(!el)return;
+  const subs=(db.jobs||[]).filter(j=>SUBMITTED_STATUSES.includes(j.status))
+    .sort((a,b)=>(b.applied_date||'').localeCompare(a.applied_date||''));
+  if(subs.length===0){el.innerHTML='<div style="color:#475569">Nothing submitted yet.</div>';return;}
+  el.innerHTML=subs.map(j=>`<div style="display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #1e293b;flex-wrap:wrap">
+    <span style="color:#475569;min-width:84px">${j.applied_date||'--'}</span>
+    <span class="status status-${j.status}">${j.status}</span>
+    <span class="company">${esc(j.company)}</span>
+    <span class="role">${esc(j.role)}</span>
+    <span class="jd-link" onclick="showJD(${j.id})">Job description</span>
+    ${j.url?`<a class="url-link" href="${esc(j.url)}" target="_blank" rel="noopener">Posting</a>`:''}
+  </div>`).join('');
+}
+
+function renderStats(){
+  const jobs=db.jobs||[];
+  document.getElementById('totalCount').textContent=jobs.length;
+  document.getElementById('interviewCount').textContent=jobs.filter(j=>['interview','offer','accepted'].includes(j.status)).length;
+  document.getElementById('offerCount').textContent=jobs.filter(j=>['offer','accepted'].includes(j.status)).length;
+  const responded=jobs.filter(j=>['screening','interview','offer','accepted'].includes(j.status)).length;
+  const decided=responded+jobs.filter(j=>j.status==='rejected').length;
+  document.getElementById('responseRate').textContent=decided>0?Math.round(responded/decided*100)+'%':'--';
+  const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
+  const ws=weekAgo.toISOString().slice(0,10);
+  document.getElementById('weekCount').textContent=jobs.filter(j=>j.applied_date>=ws).length;
+  document.getElementById('rejectedCount').textContent=jobs.filter(j=>j.status==='rejected').length;
+}
+
+async function loadRejections(){
+  // rejections.py sweeps the inbox in CI and publishes this feed
+  try{
+    const r = await fetch('rejections.json', {cache:'no-store'});
+    if(!r.ok) return;
+    const feed = await r.json();
+    const el = document.getElementById('rejectionsFeed');
+    if(!el) return;
+    if(!Array.isArray(feed) || feed.length===0){
+      el.innerHTML = '<div style="padding:4px 0;color:#475569">No rejection emails detected yet.</div>';
+      return;
+    }
+    el.innerHTML = feed.slice().reverse().slice(0,30).map(x=>{
+      const who = x.company ? esc(x.company) : '<span style="color:#64748b">unmatched</span>';
+      return `<div style="padding:4px 0;border-bottom:1px solid #1e293b"><span style="color:#475569">${(x.date||'').slice(0,10)}</span> <span class="status status-rejected">rejected</span> ${who} — ${esc(x.subject||'')}</div>`;
+    }).join('');
+  } catch(e){ /* no feed on this host */ }
+}
+
+function renderPipeline(){
+  const counts={};STATUSES.forEach(s=>counts[s]=0);
+  (db.jobs||[]).forEach(j=>counts[j.status]=(counts[j.status]||0)+1);
+  document.getElementById('pipeline').innerHTML=STATUSES.map(s=>`
+    <div class="pipe-stage" onclick="document.getElementById('filterStatus').value='${s}';renderTable()">
+      <div class="pipe-count" style="color:${STATUS_COLORS[s]}">${counts[s]}</div>
+      <div class="pipe-label">${s}</div>
+    </div>`).join('');
+}
+
+function renderTable(){
+  const filter=document.getElementById('filterStatus').value;
+  const search=document.getElementById('searchBox').value.toLowerCase();
+  let jobs=(db.jobs||[]).filter(j=>{
+    if(filter&&j.status!==filter)return false;
+    if(search&&!j.company.toLowerCase().includes(search)&&!j.role.toLowerCase().includes(search))return false;
+    return true;
+  });
+  jobs.sort((a,b)=>{
+    const so=STATUSES.indexOf(a.status)-STATUSES.indexOf(b.status);
+    return so!==0?so:b.applied_date.localeCompare(a.applied_date);
+  });
+  const tbody=document.getElementById('jobsBody');
+  const empty=document.getElementById('emptyMsg');
+  if(jobs.length===0){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=jobs.map(j=>`<tr>
+    <td><div class="company">${esc(j.company)}</div>
+      ${j.url?`<a class="url-link" href="${esc(j.url)}" target="_blank" rel="noopener">View posting</a>`:''}
+      ${(j.description||j.notes)?` <span class="jd-link" onclick="showJD(${j.id})">JD</span>`:''}
+      ${j.notes?`<div class="notes-text" title="${esc(j.notes)}">${esc(j.notes)}</div>`:''}
+    </td>
+    <td class="role">${esc(j.role)}</td>
+    <td><span class="status status-${j.status}">${j.status}</span></td>
+    <td>${j.applied_date}</td>
+    <td class="salary">${j.salary?'$'+esc(j.salary):'-'}</td>
+    <td class="actions">
+      ${j.status==='wishlist'?`<button class="btn btn-apply" onclick="quickApply(${j.id})">Mark Applied</button>`:''}
+      <button class="btn btn-update" onclick="openStatus(${j.id},'${j.status}')">Status</button>
+      <button class="btn btn-remove" onclick="removeJob(${j.id})">Remove</button>
+    </td></tr>`).join('');
+}
+
+// === ACTIONS ===
+function openAdd(){
+  ['mCompany','mRole','mUrl','mSalary','mNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mStatus').value='applied';
+  document.getElementById('modalTitle').textContent='Add Application';
+  document.getElementById('modal').classList.add('active');
+}
+function closeModal(){document.getElementById('modal').classList.remove('active')}
+
+async function saveJob(){
+  const company=document.getElementById('mCompany').value.trim();
+  const role=document.getElementById('mRole').value.trim();
+  if(!company||!role){alert('Company and Role required');return;}
+  const now=new Date().toISOString().slice(0,10);
+  const nowFull=new Date().toISOString().slice(0,16).replace('T',' ');
+  const status=document.getElementById('mStatus').value;
+  const job={id:db.next_id++,company,role,url:document.getElementById('mUrl').value.trim(),salary:document.getElementById('mSalary').value.trim(),notes:document.getElementById('mNotes').value.trim(),status,applied_date:now,updated_date:now,history:[{status,date:nowFull}]};
+  db.jobs.push(job);
+  render();closeModal();
+  addLog(`Added <span style="color:#f8fafc">${esc(company)}</span> - ${esc(role)} [${status}]`);
+  toast(`Added: ${company}`);
+  await persistData(`Add ${company} - ${role}`);
+}
+
+async function quickApply(id){
+  const job=db.jobs.find(j=>j.id===id);
+  if(!job)return;
+  job.status='applied';
+  job.applied_date=new Date().toISOString().slice(0,10);
+  job.updated_date=job.applied_date;
+  job.history.push({status:'applied',date:new Date().toISOString().slice(0,16).replace('T',' ')});
+  render();
+  addLog(`Applied to <span style="color:#38bdf8">${esc(job.company)}</span> - ${esc(job.role)}`);
+  toast(`Applied: ${job.company}`);
+  await persistData(`Applied to ${job.company}`);
+}
+
+function openStatus(id,current){
+  document.getElementById('statusJobId').value=id;
+  document.getElementById('newStatus').value=current;
+  document.getElementById('statusModal').classList.add('active');
+}
+function closeStatusModal(){document.getElementById('statusModal').classList.remove('active')}
+
+async function confirmUpdateStatus(){
+  const id=parseInt(document.getElementById('statusJobId').value);
+  const ns=document.getElementById('newStatus').value;
+  const job=db.jobs.find(j=>j.id===id);
+  if(job){
+    const old=job.status;
+    job.status=ns;
+    job.updated_date=new Date().toISOString().slice(0,10);
+    job.history.push({status:ns,date:new Date().toISOString().slice(0,16).replace('T',' ')});
+    render();
+    addLog(`${esc(job.company)}: <span style="color:${STATUS_COLORS[old]}">${old}</span> → <span style="color:${STATUS_COLORS[ns]}">${ns}</span>`);
+    toast(`Updated: ${job.company} → ${ns}`);
+    await persistData(`${job.company}: ${old} → ${ns}`);
+  }
+  closeStatusModal();
+}
+
+async function removeJob(id){
+  if(!confirm('Remove this application?'))return;
+  const job=db.jobs.find(j=>j.id===id);
+  db.jobs=db.jobs.filter(j=>j.id!==id);
+  render();
+  if(job) addLog(`Removed <span style="color:#f87171">${esc(job.company)}</span>`);
+  await persistData(`Remove ${job?job.company:'job'}`);
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`scipio-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('Data exported');
+}
+
+function importData(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async function(ev){
+    try{
+      const imported=JSON.parse(ev.target.result);
+      if(imported.jobs){
+        let added=0;
+        imported.jobs.forEach(ij=>{
+          const exists=db.jobs.some(j=>j.company===ij.company&&j.role===ij.role);
+          if(!exists){ij.id=db.next_id++;db.jobs.push(ij);added++;}
+        });
+        render();
+        addLog(`Imported ${added} new job(s)`);
+        toast(`Imported ${added} jobs`);
+        await persistData(`Import ${added} jobs`);
+      }
+    }catch(err){alert('Invalid JSON file');}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+// === START ===
+init();
+</script>
+</body>
+</html>
