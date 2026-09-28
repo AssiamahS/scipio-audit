@@ -8,9 +8,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  schedule:
-    # self-heal: rebuild daily even if the post-batch dispatch 500s
-    - cron: "45 13 * * *"
 
 permissions:
   contents: read
@@ -31,31 +28,27 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: stage public files
+        # this mirror ships example data only (tracker, logs, resumes and
+        # profile are stripped), so every copy is optional and the examples
+        # stand in for the live files the dashboard expects
         run: |
           mkdir -p _site
-          cp index.html reports.html resumes.html jobs.json _site/
-          [ -f auto-apply/resume_scores.json ] && cp auto-apply/resume_scores.json _site/ || true
-          cp auto-apply/apply_log.json _site/apply_log.json
-          cp auto-apply/rejections.json _site/rejections.json
-          cp auto-apply/confirmations.json _site/confirmations.json
-          # coverage board + resume text + attention/stats feeds for the phone app
+          for f in index.html reports.html resumes.html review.html; do
+            [ -f "$f" ] && cp "$f" _site/ || true
+          done
+          [ -f jobs.json ] && cp jobs.json _site/ || cp jobs.example.json _site/jobs.json
+          [ -f auto-apply/apply_log.json ] && cp auto-apply/apply_log.json _site/ || cp auto-apply/apply_log.example.json _site/apply_log.json
+          for f in resume_scores.json rejections.json confirmations.json needs_reply.json funnel_stats.json; do
+            [ -f "auto-apply/$f" ] && cp "auto-apply/$f" "_site/$f" || true
+          done
           for f in f500_coverage.json resume.md F500.json f500_salaries.json; do
             [ -f "$f" ] && cp "$f" "_site/$f" || true
           done
+          for d in resumes resumes-src reviews; do
+            [ -d "$d" ] && mkdir -p "_site/$d" && cp -R "$d/." "_site/$d/" || true
+          done
           mkdir -p _site/resumes_tailored
           cp auto-apply/resumes_tailored/*.pdf _site/resumes_tailored/ 2>/dev/null || true
-          for f in needs_reply.json funnel_stats.json; do
-            [ -f "auto-apply/$f" ] && cp "auto-apply/$f" "_site/$f" || true
-          done
-          # publish the resume PDFs so report cards can link the exact copy
-          # sent with each application (user annotates them from the site)
-          mkdir -p _site/resumes
-          cp resumes/*.pdf _site/resumes/
-          # swipe-review page: base resume source + every tailored review
-          cp review.html _site/
-          mkdir -p _site/resumes-src _site/reviews
-          cp resumes-src/*.md _site/resumes-src/
-          [ -d reviews ] && cp -R reviews/. _site/reviews/ || true
 
       - uses: actions/upload-pages-artifact@v3
         with:
